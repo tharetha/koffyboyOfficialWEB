@@ -495,7 +495,7 @@
 
         async function loadBookedDates() {
             try {
-                const res = await fetch('http://localhost:5000/api/bookings/booked-dates');
+                const res = await fetch('/api/bookings/booked-dates');
                 if (res.ok) {
                     const data = await res.json();
                     data.booked_dates?.forEach(d => bookedDates.add(d));
@@ -645,7 +645,7 @@
             };
 
             try {
-                const res  = await fetchWithAuth('http://localhost:5000/api/bookings/', {
+                const res  = await fetchWithAuth('/api/bookings/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

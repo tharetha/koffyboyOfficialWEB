@@ -99,7 +99,7 @@
 
         async function loadProducts() {
             try {
-                const res = await fetch('http://localhost:5000/api/store/');
+                const res = await fetch('/api/store/');
                 const data = await res.json();
                 
                 const grid = document.getElementById('store-grid');
@@ -157,7 +157,7 @@
             try {
                 const total = cart.reduce((sum, item) => sum + item.price, 0);
                 
-                const res = await fetchWithAuth('http://localhost:5000/api/store/order', {
+                const res = await fetchWithAuth('/api/store/order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ items })

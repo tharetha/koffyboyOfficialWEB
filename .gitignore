@@ -1,7 +1,9 @@
-# ─── Only track the frontend folder ──────────────────────
+# ─── Only track the frontend folder and deployment config ──
 /*
 !/frontend
+!/docker-compose.yml
 !.gitignore
+!.env.example
 
 # ─── Never commit secrets ─────────────────────────────────
 .env

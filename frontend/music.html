@@ -488,7 +488,7 @@
 
         async function loadAlbums() {
             try {
-                const res = await fetch('http://localhost:5000/api/music/albums');
+                const res = await fetch('/api/music/albums');
                 const data = await res.json();
                 
                 if (data.albums && data.albums.length > 0) {
@@ -507,7 +507,7 @@
 
         async function loadTracks(albumId) {
             try {
-                const res = await fetchWithAuth(`http://localhost:5000/api/music/tracks?album_id=${albumId}`);
+                const res = await fetchWithAuth(`/api/music/tracks?album_id=${albumId}`);
                 const data = await res.json();
                 tracks = data.tracks;
                 

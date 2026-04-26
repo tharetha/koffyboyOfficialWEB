@@ -141,7 +141,7 @@ function resetSlideInterval() {
 async function startPaystackPayment(amount, type, metadata = {}) {
     try {
         const user = JSON.parse(localStorage.getItem('koffy_user'));
-        const res = await fetchWithAuth('http://localhost:5000/api/payments/initialize', {
+        const res = await fetchWithAuth('/api/payments/initialize', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

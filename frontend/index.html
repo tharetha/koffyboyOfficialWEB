@@ -72,7 +72,7 @@
         async function loadArtistData() {
             try {
                 // Fetch Profile
-                const profRes = await fetch('http://localhost:5000/api/artist-mgmt/profile');
+                const profRes = await fetch('/api/artist-mgmt/profile');
                 const profile = await profRes.json();
                 if (profile.bio && profile.bio !== "No bio yet") {
                     document.getElementById('bio-content').textContent = profile.bio;
@@ -82,7 +82,7 @@
                 }
 
                 // Fetch Highlights
-                const highRes = await fetch('http://localhost:5000/api/artist-mgmt/highlights');
+                const highRes = await fetch('/api/artist-mgmt/highlights');
                 const highlights = await highRes.json();
                 const slides = document.getElementById('slides');
                 

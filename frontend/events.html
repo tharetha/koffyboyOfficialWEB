@@ -131,7 +131,7 @@
         async function loadEvents() {
             const container = document.getElementById('events-container');
             try {
-                const res = await fetch('http://localhost:5000/api/events/public');
+                const res = await fetch('/api/events/public');
                 const data = await res.json();
                 
                 if (data.events && data.events.length > 0) {
@@ -183,7 +183,7 @@
             }
             
             try {
-                const res = await fetch('http://localhost:5000/api/payments/initialize', {
+                const res = await fetch('/api/payments/initialize', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',

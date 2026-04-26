@@ -684,7 +684,7 @@
             const user = JSON.parse(localStorage.getItem('koffy_user'));
             
             try {
-                const res = await fetch('http://localhost:5000/api/payments/method', {
+                const res = await fetch('/api/payments/method', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -714,7 +714,7 @@
             const user = JSON.parse(localStorage.getItem('koffy_user'));
 
             try {
-                const res = await fetch('http://localhost:5000/api/payments/method', {
+                const res = await fetch('/api/payments/method', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -741,7 +741,7 @@
 
         async function updateSubStatus() {
             try {
-                const res = await fetchWithAuth('http://localhost:5000/api/payments/status');
+                const res = await fetchWithAuth('/api/payments/status');
                 const data = await res.json();
                 
                 if (data.status === 'grace') {
@@ -760,7 +760,7 @@
 
         async function loadHostedEvents() {
             try {
-                const res = await fetchWithAuth('http://localhost:5000/api/events/hosted');
+                const res = await fetchWithAuth('/api/events/hosted');
                 const data = await res.json();
                 const container = document.getElementById('hosted-events-list');
                 
@@ -819,7 +819,7 @@
 
         async function loadOrderHistory() {
             try {
-                const res = await fetchWithAuth('http://localhost:5000/api/store/my-orders');
+                const res = await fetchWithAuth('/api/store/my-orders');
                 const data = await res.json();
                 
                 const list = document.getElementById('orders-list');
