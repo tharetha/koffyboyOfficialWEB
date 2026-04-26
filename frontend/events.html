@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Events | Koffyboy Official</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .events-header {
+            text-align: center;
+            padding: 6rem 2rem 3rem;
+            background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(10,10,10,1) 100%);
+        }
+        
+        .events-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #fff, var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .event-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+        
+        .event-img {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(45deg, var(--surface-color), #2a2a2a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .event-body {
+            padding: 1.5rem;
+        }
+        
+        .event-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .event-meta {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .event-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .buy-btn {
+            width: 100%;
+        }
+        
+        .sold-out {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="events.html" class="active">Events</a>
+            <a href="booking.html">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons" id="nav-auth">
+            <a href="login.html" class="btn-login">Login</a>
+        </div>
+    </nav>
+
+    <header class="events-header">
+        <h1>Upcoming Events</h1>
+        <p style="color: var(--text-secondary);">Get your tickets to see Koffyboy live.</p>
+    </header>
+
+    <main>
+        <div class="events-grid" id="events-container">
+            <!-- Events will be injected here -->
+            <div class="empty-state">Loading events...</div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        async function loadEvents() {
+            const container = document.getElementById('events-container');
+            try {
+                const res = await fetch('http://localhost:5000/api/events/public');
+                const data = await res.json();
+                
+                if (data.events && data.events.length > 0) {
+                    container.innerHTML = '';
+                    data.events.forEach(event => {
+                        const isSoldOut = event.available <= 0;
+                        const card = document.createElement('div');
+                        card.className = `event-card ${isSoldOut ? 'sold-out' : ''}`;
+                        card.innerHTML = `
+                            <div class="event-img">🎫</div>
+                            <div class="event-body">
+                                <h3 class="event-title">${event.title}</h3>
+                                <div class="event-meta">
+                                    <span>📅 ${event.date}</span>
+                                    <span>⏰ ${event.time}</span>
+                                    <span>📍 ${event.location}</span>
+                                    <span>🎟️ ${isSoldOut ? '0' : event.available} tickets left</span>
+                                </div>
+                                <div class="event-price">ZMW ${event.ticket_price}</div>
+                                <button class="btn-primary buy-btn" onclick="buyTicket(${event.id}, ${event.ticket_price}, '${event.title.replace(/'/g, "\\'")}')" ${isSoldOut ? 'disabled' : ''}>
+                                    ${isSoldOut ? 'Sold Out' : 'Buy Ticket'}
+                                </button>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<div class="empty-state"><h2>No upcoming events right now.</h2><p>Check back later!</p></div>';
+                }
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div class="empty-state">Failed to load events.</div>';
+            }
+        }
+
+        async function buyTicket(eventId, price, title) {
+            let user = localStorage.getItem('koffy_user');
+            let email = '';
+            let name = 'Guest';
+            
+            if (user) {
+                user = JSON.parse(user);
+                email = user.email;
+                name = user.first_name + ' ' + user.last_name;
+            } else {
+                email = prompt("Please enter your email to receive the ticket:");
+                if (!email) return;
+                name = prompt("Please enter your name:") || 'Guest';
+            }
+            
+            try {
+                const res = await fetch('http://localhost:5000/api/payments/initialize', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + (localStorage.getItem('koffy_token') || 'guest_token')
+                    },
+                    body: JSON.stringify({
+                        amount: price,
+                        email: email,
+                        metadata: { 
+                            type: 'ticket', 
+                            event_id: eventId,
+                            buyer_name: name
+                        }
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.checkout_url) {
+                    window.location.href = data.checkout_url;
+                } else {
+                    alert('Failed to initialize payment: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Server error during checkout.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadEvents);
+    </script>
+</body>
+</html>

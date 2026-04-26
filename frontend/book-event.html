@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book an Event | KoffyboyOfficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .booking-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        .event-hero {
+            position: relative;
+            height: 260px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        .event-hero img,
+        .event-hero .hero-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5);
+        }
+
+        .event-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem 2rem;
+        }
+
+        .event-hero-overlay h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-hero-overlay p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .booking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 700px) {
+            .booking-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Calendar */
+        .calendar-card {
+            background: var(--surface-color);
+            border-radius: 14px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .cal-nav-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .cal-nav-btn:hover { background: var(--primary-color); border-color: var(--primary-color); }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .cal-day-name {
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border: 1px solid transparent;
+        }
+
+        .cal-day.empty { background: transparent; cursor: default; border: none; }
+
+        .cal-day.past {
+            color: #444;
+            cursor: not-allowed;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .cal-day.available {
+            background: rgba(0, 230, 118, 0.08);
+            border-color: rgba(0, 230, 118, 0.4);
+            color: var(--success-color);
+        }
+
+        .cal-day.available:hover {
+            background: rgba(0, 230, 118, 0.2);
+            transform: scale(1.12);
+            box-shadow: 0 0 12px rgba(0, 230, 118, 0.3);
+        }
+
+        .cal-day.booked {
+            background: rgba(255, 23, 68, 0.08);
+            border-color: rgba(255, 23, 68, 0.4);
+            color: var(--error-color);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .cal-day.rest-day {
+            background: rgba(255, 165, 0, 0.08);
+            border-color: rgba(255, 165, 0, 0.3);
+            color: #ffa500;
+            cursor: not-allowed;
+            font-size: 0.75rem;
+        }
+
+        .cal-day.selected-date {
+            background: var(--success-color) !important;
+            color: #000 !important;
+            font-weight: 700;
+            border-color: var(--success-color) !important;
+            transform: scale(1.1);
+            box-shadow: 0 0 16px rgba(0, 230, 118, 0.5);
+        }
+
+        .cal-legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: var(--surface-color);
+            border-radius: 14px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-card h3 {
+            margin-bottom: 1.2rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        .selected-date-display {
+            background: rgba(0, 230, 118, 0.08);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--success-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+            display: none;
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .price-display {
+            background: rgba(255, 51, 102, 0.08);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-amount {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .booking-alert {
+            padding: 0.9rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* Ticketing Section Styles */
+        .ticketing-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .ticketing-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .ticketing-details.active {
+            display: block;
+        }
+
+        .consent-box {
+            background: rgba(0, 230, 118, 0.05);
+            border-left: 3px solid var(--success-color);
+            padding: 0.8rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="booking.html" style="color: var(--primary-color);">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login">Login</a>
+        </div>
+        <div class="user-profile hidden"></div>
+    </nav>
+
+    <div class="booking-page">
+        <a href="booking.html" class="back-link">&#8592; Back to Event Types</a>
+
+        <!-- Dynamic Event Hero Banner -->
+        <div class="event-hero" id="event-hero">
+            <img id="hero-img" src="" alt="" onerror="this.style.display='none'">
+            <div class="hero-bg" id="hero-bg" style="display:none;"></div>
+            <div class="event-hero-overlay">
+                <h1 id="event-title">Book an Event</h1>
+                <p id="event-subtitle">Select an available date from the calendar</p>
+            </div>
+        </div>
+
+        <div class="booking-grid">
+            <!-- LEFT: Calendar -->
+            <div class="calendar-card">
+                <div class="cal-header">
+                    <button class="cal-nav-btn" id="prev-month">&#8249;</button>
+                    <h3 id="current-month" style="font-size:1rem; font-weight:700;"></h3>
+                    <button class="cal-nav-btn" id="next-month">&#8250;</button>
+                </div>
+                <div class="cal-grid" id="cal-grid"></div>
+                <div class="cal-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:rgba(0,230,118,0.5); border:1px solid #00e676;"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:rgba(255,23,68,0.5); border:1px solid #ff1744;"></div>
+                        <span>Booked</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background:rgba(255,165,0,0.5); border:1px solid #ffa500;"></div>
+                        <span>Rest Day</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Details Form -->
+            <div class="form-card">
+                <h3>Event Details</h3>
+
+                <div class="selected-date-display" id="selected-date-display">
+                    📅 <span id="selected-date-text">No date selected</span>
+                </div>
+
+                <div class="booking-alert" id="booking-alert"></div>
+
+                <form id="booking-form">
+                    <div class="form-group">
+                        <label for="location">Venue / Location</label>
+                        <input type="text" id="location" placeholder="e.g. Levy Junction, Lusaka" required>
+                    </div>
+
+                    <div class="time-grid">
+                        <div class="form-group">
+                            <label for="start-time">Start Time</label>
+                            <input type="time" id="start-time" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="end-time">End Time</label>
+                            <input type="time" id="end-time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Additional Notes (optional)</label>
+                        <input type="text" id="notes" placeholder="Special requirements, theme, etc.">
+                    </div>
+
+                    <!-- Ticketing Section -->
+                    <div class="ticketing-section">
+                        <label class="toggle-row">
+                            <span style="font-weight: 600; color: var(--text-primary);">🎫 Enable Public Ticketing</span>
+                            <input type="checkbox" id="enable-ticketing" onchange="toggleTicketing()">
+                        </label>
+                        <div class="ticketing-details" id="ticketing-details">
+                            <div class="consent-box">
+                                <strong>Platform Fee:</strong> A 5% fee will be deducted per ticket sold to cover payment processing and platform maintenance. The rest goes directly to you!
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="event-title">Public Event Title</label>
+                                <input type="text" id="event-title" placeholder="e.g. Lusaka Summer Fest">
+                            </div>
+                            
+                            <div class="time-grid">
+                                <div class="form-group">
+                                    <label for="ticket-price">Ticket Price (ZMW)</label>
+                                    <input type="number" id="ticket-price" min="0" placeholder="e.g. 150">
+                                </div>
+                                <div class="form-group">
+                                    <label for="capacity">Total Capacity</label>
+                                    <input type="number" id="capacity" min="1" placeholder="e.g. 500">
+                                </div>
+                            </div>
+                            
+                            <h4 style="margin: 1rem 0 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Payout Details</h4>
+                            <div class="form-group">
+                                <label for="payout-account">MoMo Number / Bank Account</label>
+                                <input type="text" id="payout-account" placeholder="Where should we send your money?">
+                            </div>
+                            <div class="form-group">
+                                <label for="notification-email">Notification Email</label>
+                                <input type="email" id="notification-email" placeholder="For sales reports">
+                            </div>
+                            
+                            <label style="display: flex; gap: 0.5rem; align-items: start; font-size: 0.8rem; color: var(--text-secondary); margin-top: 1rem;">
+                                <input type="checkbox" id="terms-accepted" style="margin-top: 3px;">
+                                <span>I agree to the 5% platform fee deduction and confirm my payout details are correct.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="price-display">
+                        <div>
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:2px;">Estimated Price</div>
+                            <div class="price-amount" id="price-display">—</div>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); text-align:right; max-width:120px;">
+                            Final price set by artist after review
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="btn-submit" style="width:100%;" disabled>
+                        Select a Date First
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // ── Event Config ──────────────────────────────────────────────
+        const eventConfig = {
+            show:    { label: 'Live Show',       price: '$1,500', img: 'img/event_show.png',    subtitle: 'Book Koffyboy for a live stage performance.' },
+            wedding: { label: 'Wedding',         price: '$1,000', img: 'img/event_wedding.png', subtitle: 'Make your special day unforgettable with live music.' },
+            club:    { label: 'Club Appearance', price: '$800',   img: 'img/event_club.png',    subtitle: 'Bring the vibe to your club night or DJ set.' },
+            private: { label: 'Private Event',   price: '$500',   img: null,                    subtitle: 'An exclusive intimate performance for your guests.',   bg: 'linear-gradient(135deg,#1a0a0f,#2d1b24)' },
+            custom:  { label: 'Custom Event',    price: 'TBD',    img: null,                    subtitle: 'Got something unique in mind? Let us know.',          bg: 'linear-gradient(135deg,#0d0d1a,#1a1a2e)' },
+        };
+
+        // ── Read URL param ────────────────────────────────────────────
+        const params = new URLSearchParams(window.location.search);
+        const eventType = params.get('type') || 'show';
+        const config = eventConfig[eventType] || eventConfig['show'];
+
+        // Apply hero
+        document.getElementById('event-title').textContent = 'Book: ' + config.label;
+        document.getElementById('event-subtitle').textContent = config.subtitle;
+        document.getElementById('price-display').textContent = config.price;
+
+        const heroImg = document.getElementById('hero-img');
+        const heroBg  = document.getElementById('hero-bg');
+        if (config.img) {
+            heroImg.src = config.img;
+            heroImg.style.display = 'block';
+        } else {
+            heroImg.style.display = 'none';
+            heroBg.style.display  = 'block';
+            heroBg.style.background = config.bg;
+        }
+
+        // ── Calendar State ────────────────────────────────────────────
+        let selectedDate  = null;
+        let displayMonth  = new Date().getMonth();
+        let displayYear   = new Date().getFullYear();
+
+        // Simulated booked dates (replace with API call)
+        // Format: 'YYYY-MM-DD'
+        const bookedDates = new Set();
+
+        async function loadBookedDates() {
+            try {
+                const res = await fetch('http://localhost:5000/api/bookings/booked-dates');
+                if (res.ok) {
+                    const data = await res.json();
+                    data.booked_dates?.forEach(d => bookedDates.add(d));
+                }
+            } catch {
+                // Fallback: demo dates so the calendar still looks populated
+                const today = new Date();
+                [3, 8, 14, 21, 27].forEach(offset => {
+                    const d = new Date(today);
+                    d.setDate(today.getDate() + offset);
+                    bookedDates.add(d.toISOString().split('T')[0]);
+                });
+            }
+            renderCalendar();
+        }
+
+        function isBlocked(dateStr) {
+            if (bookedDates.has(dateStr)) return 'booked';
+            // Check 1-day buffer around every booked date
+            for (const bd of bookedDates) {
+                const booked = new Date(bd);
+                const check  = new Date(dateStr);
+                const diff   = Math.abs((check - booked) / (1000 * 60 * 60 * 24));
+                if (diff === 1) return 'rest';
+            }
+            return 'free';
+        }
+
+        const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+        function renderCalendar() {
+            document.getElementById('current-month').textContent = `${monthNames[displayMonth]} ${displayYear}`;
+            const grid = document.getElementById('cal-grid');
+            grid.innerHTML = '';
+
+            // Day headers
+            ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'cal-day-name';
+                el.textContent = d;
+                grid.appendChild(el);
+            });
+
+            const firstDay    = new Date(displayYear, displayMonth, 1).getDay();
+            const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
+            const today       = new Date();
+            today.setHours(0,0,0,0);
+
+            // Empty cells
+            for (let i = 0; i < firstDay; i++) {
+                const el = document.createElement('div');
+                el.className = 'cal-day empty';
+                grid.appendChild(el);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const el    = document.createElement('div');
+                const dStr  = `${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                const dDate = new Date(displayYear, displayMonth, day);
+                el.className = 'cal-day';
+                el.textContent = day;
+
+                if (dDate < today) {
+                    el.classList.add('past');
+                } else {
+                    const status = isBlocked(dStr);
+                    if (status === 'booked') {
+                        el.classList.add('booked');
+                        el.title = 'Already booked';
+                    } else if (status === 'rest') {
+                        el.classList.add('rest-day');
+                        el.title = 'Rest day (buffer around a booked event)';
+                    } else {
+                        el.classList.add('available');
+                        if (dStr === selectedDate) el.classList.add('selected-date');
+                        el.addEventListener('click', () => selectDate(dStr, el));
+                    }
+                }
+                grid.appendChild(el);
+            }
+        }
+
+        function selectDate(dStr, el) {
+            selectedDate = dStr;
+            // Update UI
+            document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected-date'));
+            el.classList.add('selected-date');
+
+            const [y, m, d] = dStr.split('-');
+            const pretty = new Date(y, m-1, d).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+            document.getElementById('selected-date-text').textContent = pretty;
+            document.getElementById('selected-date-display').style.display = 'block';
+
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = false;
+            btn.textContent = 'Request Booking';
+        }
+
+        // Calendar navigation
+        document.getElementById('prev-month').addEventListener('click', () => {
+            displayMonth--;
+            if (displayMonth < 0) { displayMonth = 11; displayYear--; }
+            renderCalendar();
+        });
+        document.getElementById('next-month').addEventListener('click', () => {
+            displayMonth++;
+            if (displayMonth > 11) { displayMonth = 0; displayYear++; }
+            renderCalendar();
+        });
+
+        // ── Form Submit ───────────────────────────────────────────────
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertEl = document.getElementById('booking-alert');
+            const user    = JSON.parse(localStorage.getItem('koffy_user'));
+
+            if (!user) {
+                showAlert('You must be logged in to book an event.', 'error');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+            if (!selectedDate) {
+                showAlert('Please select an available date from the calendar.', 'error');
+                return;
+            }
+
+            const isTicketed = document.getElementById('enable-ticketing').checked;
+            if (isTicketed && !document.getElementById('terms-accepted').checked) {
+                showAlert('You must accept the platform fee terms to enable public ticketing.', 'error');
+                return;
+            }
+
+            const payload = {
+                event_type: eventType,
+                event_date: selectedDate,
+                location:   document.getElementById('location').value,
+                start_time: document.getElementById('start-time').value,
+                end_time:   document.getElementById('end-time').value,
+                notes:      document.getElementById('notes').value,
+                is_ticketed: isTicketed,
+                title:      isTicketed ? document.getElementById('event-title').value : null,
+                ticket_price: isTicketed ? document.getElementById('ticket-price').value : null,
+                capacity:   isTicketed ? document.getElementById('capacity').value : null,
+                payout_account: isTicketed ? document.getElementById('payout-account').value : null,
+                notification_email: isTicketed ? document.getElementById('notification-email').value : null,
+                terms_accepted: isTicketed ? document.getElementById('terms-accepted').checked : false
+            };
+
+            try {
+                const res  = await fetchWithAuth('http://localhost:5000/api/bookings/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    showAlert('🎉 Booking requested! We will contact you shortly to confirm.', 'success');
+                    document.getElementById('booking-form').reset();
+                    selectedDate = null;
+                    document.getElementById('selected-date-display').style.display = 'none';
+                    document.getElementById('btn-submit').disabled = true;
+                    document.getElementById('btn-submit').textContent = 'Select a Date First';
+                    // Add to local booked dates so calendar updates immediately
+                    bookedDates.add(payload.event_date);
+                    renderCalendar();
+                } else {
+                    showAlert(data.error || 'Failed to request booking.', 'error');
+                }
+            } catch {
+                showAlert('Server error. Please try again later.', 'error');
+            }
+        });
+
+        function showAlert(msg, type) {
+            const el = document.getElementById('booking-alert');
+            el.textContent = msg;
+            el.style.display = 'block';
+            if (type === 'success') {
+                el.style.background = 'rgba(0,230,118,0.12)';
+                el.style.border = '1px solid rgba(0,230,118,0.4)';
+                el.style.color  = 'var(--success-color)';
+            } else {
+                el.style.background = 'rgba(255,23,68,0.12)';
+                el.style.border = '1px solid rgba(255,23,68,0.4)';
+                el.style.color  = 'var(--error-color)';
+            }
+        }
+
+        function toggleTicketing() {
+            const isChecked = document.getElementById('enable-ticketing').checked;
+            const detailsDiv = document.getElementById('ticketing-details');
+            if (isChecked) {
+                detailsDiv.classList.add('active');
+            } else {
+                detailsDiv.classList.remove('active');
+            }
+        }
+
+        // ── Init ──────────────────────────────────────────────────────
+        loadBookedDates();
+    </script>
+</body>
+</html>

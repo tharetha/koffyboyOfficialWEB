@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store | KoffyboyOfficial</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: center;
+            padding-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            background-color: #333;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1rem;
+        }
+
+        .cart-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="booking.html">Booking</a>
+            <a href="store.html" style="color: var(--primary-color);">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login">Login</a>
+        </div>
+        <div class="user-profile hidden"></div>
+    </nav>
+
+    <h2 style="text-align: center; margin: 2rem 0;">Merch Store</h2>
+
+    <div class="store-grid" id="store-grid">
+        <!-- Products will be injected here -->
+        <div style="text-align: center; grid-column: 1/-1; padding: 3rem;">Loading store...</div>
+    </div>
+
+    <div class="cart-container" id="cart-btn" onclick="checkout()">
+        Cart (0) - $0.00
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        let cart = JSON.parse(localStorage.getItem('koffy_cart')) || [];
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+
+        async function loadProducts() {
+            try {
+                const res = await fetch('http://localhost:5000/api/store/');
+                const data = await res.json();
+                
+                const grid = document.getElementById('store-grid');
+                grid.innerHTML = '';
+                
+                data.products.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'product-card';
+                    div.innerHTML = `
+                        <div class="product-image" style="background: url('${p.image_url || 'https://via.placeholder.com/250'}') center/cover;"></div>
+                        <div class="product-info">
+                            <h3>${p.name}</h3>
+                            <p style="color: var(--text-secondary); margin: 0.5rem 0;">ZMW ${p.price.toFixed(2)}</p>
+                            <button class="btn-primary" onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+                        </div>
+                    `;
+                    grid.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Error loading products:", err);
+            }
+        }
+
+        function updateCartUI() {
+            const btn = document.getElementById('cart-btn');
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            btn.textContent = `Cart (${cart.length}) - ZMW ${total.toFixed(2)}`;
+            localStorage.setItem('koffy_cart', JSON.stringify(cart));
+        }
+
+        function addToCart(product) {
+            cart.push(product);
+            updateCartUI();
+
+            // Simple visual feedback
+            const btn = document.getElementById('cart-btn');
+            btn.style.transform = 'scale(1.1)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 200);
+        }
+
+        async function checkout() {
+            if (cart.length === 0) return alert('Cart is empty!');
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+            if (!user) {
+                alert('Please login to checkout.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const items = cart.map(item => ({
+                product_id: item.id,
+                quantity: 1 // For now, simple cart
+            }));
+
+            try {
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                
+                const res = await fetchWithAuth('http://localhost:5000/api/store/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Order created, now pay for it
+                    await startPaystackPayment(total, 'order', { order_id: data.order_id });
+                    cart = [];
+                    updateCartUI();
+                } else {
+                    alert(`❌ Order failed: ${data.error}`);
+                }
+            } catch (err) {
+                alert('Server error during checkout.');
+            }
+        }
+
+        // Initialize UI
+        updateCartUI();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | KoffyboyOfficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="booking.html">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="signup.html" class="btn-signup">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="form-container">
+        <h2 style="margin-bottom: 1rem; text-align: center;">Welcome Back</h2>
+        <div id="login-error" class="hidden" style="color: var(--error-color); margin-bottom: 1rem; text-align: center;"></div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" required placeholder="e.g. +260971234567">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
+        </form>
+        <p style="margin-top: 1.5rem; text-align: center; color: var(--text-secondary);">
+            Don't have an account? <a href="signup.html" style="color: var(--primary-color);">Sign Up</a>
+        </p>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('login-error');
+
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone_number: phone, password })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    localStorage.setItem('koffy_user', JSON.stringify(data.user));
+                    localStorage.setItem('koffy_token', data.token);
+                    window.location.href = 'index.html';
+                } else {
+                    errorEl.textContent = data.error || 'Login failed';
+                    errorEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorEl.textContent = 'Server error. Please try again.';
+                errorEl.classList.remove('hidden');
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

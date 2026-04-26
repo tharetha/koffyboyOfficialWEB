@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music | KoffyboyOfficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .music-page { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem 5rem; }
+
+        .music-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .music-layout { grid-template-columns: 1fr; }
+        }
+
+        /* Album Card */
+        .album-card {
+            background: var(--surface-color);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 80px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .album-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(255,51,102,0.15);
+        }
+
+        .album-cover {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: linear-gradient(135deg, #1a0a0f 0%, #2d1020 40%, #1a0a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+        }
+
+        .album-cover img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .album-cover-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+            width: 100%;
+            background: linear-gradient(135deg, #1a0a0f 0%, #2d1020 40%, #1a0a1a 100%);
+            color: var(--text-secondary);
+        }
+
+        .album-cover-placeholder .vinyl {
+            font-size: 5rem;
+            animation: spin 8s linear infinite;
+            filter: drop-shadow(0 0 15px rgba(255,51,102,0.4));
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        .album-info { padding: 1.2rem; }
+        .album-info h3 { font-size: 1.1rem; margin: 0 0 4px; }
+        .album-info p  { color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 8px; }
+
+        .album-tag {
+            display: inline-block;
+            background: rgba(255,51,102,0.1);
+            border: 1px solid rgba(255,51,102,0.3);
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Track List */
+        .tracks-panel { }
+
+        .tracks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tracks-header h2 { font-size: 1.5rem; margin: 0; }
+
+        .access-banner {
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 1.2rem;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .access-banner.guest {
+            background: rgba(255,51,102,0.08);
+            border: 1px solid rgba(255,51,102,0.2);
+            color: var(--text-secondary);
+        }
+
+        .access-banner.free-user {
+            background: rgba(255,153,51,0.08);
+            border: 1px solid rgba(255,153,51,0.2);
+            color: var(--text-secondary);
+        }
+
+        .access-banner.premium {
+            background: rgba(0,230,118,0.08);
+            border: 1px solid rgba(0,230,118,0.2);
+            color: var(--success-color);
+        }
+
+        .track-list {
+            background: var(--surface-color);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            gap: 1rem;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .track-item:last-child { border-bottom: none; }
+        .track-item:hover { background: rgba(255,51,102,0.05); }
+        .track-item.playing { background: rgba(255,51,102,0.08); }
+
+        .track-num {
+            width: 24px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .play-btn {
+            background: var(--primary-color);
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            flex-shrink: 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255,51,102,0.4);
+        }
+
+        .track-meta { flex: 1; min-width: 0; }
+        .track-meta h4 { margin: 0 0 2px; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-meta p  { margin: 0; color: var(--text-secondary); font-size: 0.82rem; }
+
+        .track-badge {
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .badge-preview { background: rgba(255,153,51,0.15); color: #ff9933; }
+        .badge-full    { background: rgba(0,230,118,0.12); color: var(--success-color); }
+        .badge-locked  { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+
+        /* Custom Player Bar */
+        #player-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(14, 14, 14, 0.97);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255,51,102,0.25);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+            z-index: 500;
+        }
+
+        #player-bar.active { transform: translateY(0); }
+
+        .player-info {
+            min-width: 0;
+            flex: 0 0 160px;
+        }
+
+        .player-track-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-track-album {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .ctrl-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .ctrl-btn:hover { color: var(--text-primary); }
+
+        .ctrl-play {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 0 12px rgba(255,51,102,0.4);
+        }
+
+        .ctrl-play:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255,51,102,0.6);
+        }
+
+        .player-progress-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .player-time-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        .player-progress-track {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #ff9933);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.1s linear;
+            pointer-events: none;
+        }
+
+        .player-vol-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .vol-slider {
+            -webkit-appearance: none;
+            width: 70px;
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.15);
+            outline: none;
+        }
+
+        .vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html" style="color: var(--primary-color);">Music</a>
+            <a href="booking.html">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login">Login</a>
+            <a href="signup.html" class="btn-signup">Sign Up</a>
+        </div>
+        <div class="user-profile hidden"></div>
+    </nav>
+
+    <div class="music-page">
+        <div class="music-layout">
+
+            <!-- LEFT: Album Card -->
+            <div class="album-card" id="album-card">
+                <div class="album-cover" id="album-cover-wrap">
+                    <!-- Placeholder until artist posts album -->
+                    <div class="album-cover-placeholder">
+                        <div class="vinyl">💿</div>
+                        <p style="margin-top:1rem; font-size:0.85rem;">Album Coming Soon</p>
+                    </div>
+                </div>
+                <div class="album-info">
+                    <h3 id="album-name">The Beginning</h3>
+                    <p id="album-artist">Koffyboy · 2026</p>
+                    <span class="album-tag" id="album-track-count">2 Tracks</span>
+                </div>
+            </div>
+
+            <!-- RIGHT: Tracks -->
+            <div class="tracks-panel">
+                <div class="tracks-header">
+                    <h2>Latest Tracks</h2>
+                </div>
+
+                <!-- Dynamic access banner -->
+                <div class="access-banner guest" id="access-banner">
+                    <span>🎵 30s previews. <a href="login.html" style="color:var(--primary-color);">Login / Register</a> for full access.</span>
+                </div>
+
+                <div class="track-list" id="track-list">
+                    <div class="track-item" onclick="playTrack(this, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Zaazuu Vibe', 1)">
+                        <div class="track-num">1</div>
+                        <button class="play-btn">▶</button>
+                        <div class="track-meta">
+                            <h4>Zaazuu Vibe</h4>
+                            <p>Album: The Beginning</p>
+                        </div>
+                        <span class="track-badge badge-preview" id="badge-track-1">Preview</span>
+                    </div>
+                    <div class="track-item" onclick="playTrack(this, 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Midnight Run', 2)">
+                        <div class="track-num">2</div>
+                        <button class="play-btn">▶</button>
+                        <div class="track-meta">
+                            <h4>Midnight Run</h4>
+                            <p>Album: The Beginning</p>
+                        </div>
+                        <span class="track-badge badge-preview" id="badge-track-2">Preview</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden audio engine (no controls = no download button) -->
+    <audio id="audio-engine" preload="auto"></audio>
+
+    <!-- Custom Player Bar -->
+    <div id="player-bar">
+        <div class="player-info">
+            <div class="player-track-name" id="p-track-name">—</div>
+            <div class="player-track-album" id="p-track-album">—</div>
+        </div>
+
+        <div class="player-controls">
+            <button class="ctrl-btn" onclick="playerPrev()" title="Previous">&#9664;&#9664;</button>
+            <button class="ctrl-play" id="p-playpause" onclick="togglePlay()">&#9654;</button>
+            <button class="ctrl-btn" onclick="playerNext()" title="Next">&#9654;&#9654;</button>
+        </div>
+
+        <div class="player-progress-wrap">
+            <div class="player-time-row">
+                <span id="p-current">0:00</span>
+                <span id="p-duration">0:00</span>
+            </div>
+            <div class="player-progress-track" id="p-progress-track" onclick="seekTrack(event)">
+                <div class="player-progress-fill" id="p-progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="player-vol-wrap">
+            <span style="font-size:0.9rem; color:var(--text-secondary);">🔈</span>
+            <input class="vol-slider" type="range" min="0" max="1" step="0.01" value="0.8" id="vol-slider" oninput="setVolume(this.value)">
+        </div>
+    </div>
+
+    <!-- Footer (above player) -->
+    <footer style="margin-bottom: 70px;">
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const engine       = document.getElementById('audio-engine');
+        const playerBar    = document.getElementById('player-bar');
+        const pPlayPause   = document.getElementById('p-playpause');
+        const pProgressFill= document.getElementById('p-progress-fill');
+        const pCurrent     = document.getElementById('p-current');
+        const pDuration    = document.getElementById('p-duration');
+        let isPlaying      = false;
+        let currentItem    = null;
+        let previewTimeout = null;
+
+        let tracks = [];
+        let currentIndex = 0;
+
+        // ── Access tier & Load Data ──────────────────────────────────
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+            const banner = document.getElementById('access-banner');
+
+            if (!user) {
+                banner.className = 'access-banner guest';
+                banner.innerHTML = `🎵 You\'re listening to 30s previews. <a href="login.html" style="color:var(--primary-color);">Login / Register</a> for more.`;
+                setAllBadges('preview');
+            } else if (!user.is_subscribed) {
+                banner.className = 'access-banner free-user';
+                banner.innerHTML = `⭐ Free account. <a href="account.html" style="color:#ff9933;">Subscribe for full tracks →</a>`;
+                setAllBadges('preview');
+            } else {
+                banner.className = 'access-banner premium';
+                banner.innerHTML = `✅ Premium — Full track access.`;
+                setAllBadges('full');
+            }
+
+            engine.volume = 0.8;
+            loadAlbums();
+        });
+
+        async function loadAlbums() {
+            try {
+                const res = await fetch('http://localhost:5000/api/music/albums');
+                const data = await res.json();
+                
+                if (data.albums && data.albums.length > 0) {
+                    const album = data.albums[0]; // For now load first album
+                    document.getElementById('album-title').textContent = album.title;
+                    document.getElementById('album-meta').textContent = `${album.release_date.split('-')[0]} • ${album.track_count} Tracks`;
+                    if (album.cover_image_url) {
+                        document.querySelector('.album-poster img').src = album.cover_image_url;
+                    }
+                    loadTracks(album.id);
+                }
+            } catch (err) {
+                console.error("Error loading albums:", err);
+            }
+        }
+
+        async function loadTracks(albumId) {
+            try {
+                const res = await fetchWithAuth(`http://localhost:5000/api/music/tracks?album_id=${albumId}`);
+                const data = await res.json();
+                tracks = data.tracks;
+                
+                const trackList = document.getElementById('track-list');
+                trackList.innerHTML = '';
+                
+                tracks.forEach((track, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'track-item';
+                    div.onclick = () => playTrack(div, track.audio_url, track.title, i + 1);
+                    
+                    div.innerHTML = `
+                        <div class="track-num">${(i + 1).toString().padStart(2, '0')}</div>
+                        <div class="track-info">
+                            <div class="track-title">${track.title}</div>
+                            <div class="track-badge ${track.is_preview ? 'badge-preview' : 'badge-full'}">
+                                ${track.is_preview ? 'Preview' : 'Full'}
+                            </div>
+                        </div>
+                        <div class="track-play-icon">▶</div>
+                    `;
+                    trackList.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Error loading tracks:", err);
+            }
+        }
+
+        function setAllBadges(type) {
+            document.querySelectorAll('.track-badge').forEach(b => {
+                b.textContent = type === 'full' ? 'Full' : 'Preview';
+                b.className   = type === 'full' ? 'track-badge badge-full' : 'track-badge badge-preview';
+            });
+        }
+
+        function fmtTime(s) {
+            if (isNaN(s)) return '0:00';
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60).toString().padStart(2, '0');
+            return `${m}:${sec}`;
+        }
+
+        // ── Progress update ──────────────────────────────────────────
+        engine.addEventListener('timeupdate', () => {
+            if (!engine.duration) return;
+            const pct = (engine.currentTime / engine.duration) * 100;
+            pProgressFill.style.width = pct + '%';
+            pCurrent.textContent  = fmtTime(engine.currentTime);
+            pDuration.textContent = fmtTime(engine.duration);
+        });
+
+        engine.addEventListener('ended', () => playerNext());
+
+        function seekTrack(e) {
+            if (!engine.duration) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const ratio = (e.clientX - rect.left) / rect.width;
+            engine.currentTime = ratio * engine.duration;
+        }
+
+        function setVolume(v) { engine.volume = v; }
+
+        // ── Playback control ─────────────────────────────────────────
+        function playTrack(item, url, title, trackIndex) {
+            currentIndex = trackIndex - 1;
+
+            // Deselect previous
+            if (currentItem) currentItem.classList.remove('playing');
+            item.classList.add('playing');
+            currentItem = item;
+
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+            const isSubscribed = user && user.is_subscribed;
+
+            engine.src = url;
+            engine.play();
+            isPlaying = true;
+            pPlayPause.innerHTML = '⏸';
+            playerBar.classList.add('active');
+
+            document.getElementById('p-track-name').textContent  = title;
+            document.getElementById('p-track-album').textContent = tracks[currentIndex]?.album || '';
+
+            // Enforce 30s preview for non-subscribers
+            clearTimeout(previewTimeout);
+            if (!isSubscribed) {
+                previewTimeout = setTimeout(() => {
+                    engine.pause();
+                    isPlaying = false;
+                    pPlayPause.innerHTML = '&#9654;';
+                    document.getElementById('p-track-name').textContent = 'Preview ended — Subscribe ↑';
+                }, 30000);
+            }
+        }
+
+        function togglePlay() {
+            if (engine.paused) {
+                engine.play();
+                isPlaying = true;
+                pPlayPause.innerHTML = '⏸';
+            } else {
+                engine.pause();
+                isPlaying = false;
+                pPlayPause.innerHTML = '&#9654;';
+            }
+        }
+
+        function playerNext() {
+            currentIndex = (currentIndex + 1) % tracks.length;
+            const t = tracks[currentIndex];
+            const items = document.querySelectorAll('.track-item');
+            playTrack(items[currentIndex], t.url, t.title, currentIndex + 1);
+        }
+
+        function playerPrev() {
+            currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+            const t = tracks[currentIndex];
+            const items = document.querySelectorAll('.track-item');
+            playTrack(items[currentIndex], t.url, t.title, currentIndex + 1);
+        }
+    </script>
+</body>
+</html>

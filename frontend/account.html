@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account | KoffyboyOfficial</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .account-page {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        .account-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: var(--surface-color);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .account-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #ff9933);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .account-info h2 {
+            margin: 0 0 4px;
+            font-size: 1.3rem;
+        }
+
+        .account-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .badge-free {
+            background: rgba(179, 179, 179, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .badge-premium {
+            background: rgba(255, 153, 51, 0.15);
+            color: #ff9933;
+        }
+
+        .section-card {
+            background: var(--surface-color);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .section-title {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .field-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .payment-card {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.7rem 1.1rem;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-color);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .payment-card.active {
+            border-color: var(--primary-color);
+            background: rgba(255, 51, 102, 0.08);
+            color: var(--primary-color);
+        }
+
+        .payment-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .payment-card .pm-icon {
+            font-size: 1.3rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: rgba(255, 23, 68, 0.1);
+            border: 1px solid rgba(255, 23, 68, 0.3);
+            color: var(--error-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 23, 68, 0.2);
+        }
+
+        .feedback-stars {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .star {
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--border-color);
+            transition: color 0.15s, transform 0.15s;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ff9933;
+            transform: scale(1.2);
+        }
+
+        .subscribe-banner {
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.15), rgba(255, 153, 51, 0.15));
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .subscribe-banner h3 {
+            margin: 0 0 4px;
+            font-size: 1.1rem;
+        }
+
+        .subscribe-banner p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .alert-msg {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.88rem;
+            display: none;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 1rem 0;
+        }
+
+        /* Order History Styles */
+        .order-item {
+            padding: 1rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-id { font-weight: 700; font-size: 0.9rem; }
+        .order-date { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .order-status {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .status-pending { background: rgba(255, 153, 51, 0.15); color: #ff9933; }
+        .status-confirmed { background: rgba(0, 230, 118, 0.15); color: var(--success-color); }
+        .status-completed { background: rgba(33, 150, 243, 0.15); color: #2196f3; }
+
+        .order-products {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 { margin: 0; font-size: 1.2rem; }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-modal:hover { color: var(--text-primary); }
+
+        .grace-banner {
+            background: rgba(255, 153, 51, 0.15);
+            border: 1px solid rgba(255, 153, 51, 0.3);
+            color: #ff9933;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="booking.html">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login">Login</a>
+        </div>
+        <div class="user-profile hidden"></div>
+    </nav>
+
+    <div class="account-page" id="account-page">
+        <!-- Shown when not logged in -->
+        <div id="not-logged-in" style="text-align:center; padding: 5rem 1rem; display:none;">
+            <p style="font-size:3rem;">🔒</p>
+            <h2 style="margin:1rem 0 0.5rem;">You're not logged in</h2>
+            <p style="color:var(--text-secondary); margin-bottom:1.5rem;">Please log in to access your account settings.
+            </p>
+            <a href="login.html" class="btn-primary" style="text-decoration:none; display:inline-block;">Go to Login</a>
+        </div>
+
+        <!-- Shown when logged in -->
+        <div id="account-content" style="display:none;">
+            <!-- Grace Period Banner -->
+            <div id="grace-banner" class="grace-banner">
+                <strong>⚠️ Grace Period Active:</strong> Your last payment failed. Please update your payment method. You have <span id="grace-days">7</span> days left before your access is suspended.
+            </div>
+
+            <!-- Profile Header -->
+            <div class="account-header">
+                <div class="account-avatar" id="avatar-initials">?</div>
+                <div class="account-info">
+                    <h2 id="display-name">Loading...</h2>
+                    <p id="display-phone">—</p>
+                    <span class="badge badge-free" id="tier-badge">Free</span>
+                </div>
+            </div>
+
+            <!-- Subscribe Banner (shown for free users) -->
+            <div class="subscribe-banner" id="subscribe-banner">
+                <div>
+                    <h3>🎵 Go Premium</h3>
+                    <p>Get unlimited full-track access to all of Koffyboy's music.</p>
+                </div>
+                <button class="btn-primary" onclick="initiateSubscription()">Subscribe — ZMW 20/mo</button>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="section-card">
+                <div class="section-title">Personal Information</div>
+                <div class="section-body">
+                    <div id="profile-alert" class="alert-msg"></div>
+                    <div class="field-row">
+                        <div class="form-group">
+                            <label for="edit-fname">First Name</label>
+                            <input type="text" id="edit-fname" placeholder="First name">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-lname">Last Name</label>
+                            <input type="text" id="edit-lname" placeholder="Last name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email Address</label>
+                        <input type="email" id="edit-email" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-phone">Phone Number</label>
+                        <input type="tel" id="edit-phone" placeholder="+260...">
+                    </div>
+                    <button class="btn-primary" onclick="saveProfile()" style="margin-top:0.5rem;">Save Changes</button>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="section-card">
+                <div class="section-title">Change Password</div>
+                <div class="section-body">
+                    <div id="password-alert" class="alert-msg"></div>
+                    <div class="form-group">
+                        <label for="current-pw">Current Password</label>
+                        <input type="password" id="current-pw" placeholder="••••••••">
+                    </div>
+                    <div class="field-row">
+                        <div class="form-group">
+                            <label for="new-pw">New Password</label>
+                            <input type="password" id="new-pw" placeholder="••••••••">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-pw">Confirm New</label>
+                            <input type="password" id="confirm-pw" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="changePassword()" style="margin-top:0.5rem;">Update
+                        Password</button>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="section-card">
+                <div class="section-title">Payment Methods</div>
+                <div class="section-body">
+                    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1rem;">Select your preferred payment method for subscriptions and purchases.</p>
+                    <div class="payment-methods">
+
+                        <!-- MTN MoMo -->
+                        <div class="payment-card active" onclick="selectPayment(this)" data-method="MTN MoMo">
+                            <svg width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="50" fill="#FFCC00"/>
+                                <text x="50" y="62" text-anchor="middle" font-size="30" font-weight="900" font-family="Arial" fill="#003087">MTN</text>
+                            </svg>
+                            <span>MTN MoMo</span>
+                        </div>
+
+                        <!-- Airtel Money -->
+                        <div class="payment-card" onclick="selectPayment(this)" data-method="Airtel Money">
+                            <svg width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="50" fill="#E40000"/>
+                                <text x="50" y="65" text-anchor="middle" font-size="38" font-weight="900" font-family="Arial" fill="white">a</text>
+                            </svg>
+                            <span>Airtel Money</span>
+                        </div>
+
+                        <!-- Visa -->
+                        <div class="payment-card" onclick="selectPayment(this)" data-method="Visa">
+                            <svg width="48" height="28" viewBox="0 0 750 471" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="750" height="471" rx="40" fill="#1A1F71"/>
+                                <path d="M278 334l45-271h72l-45 271h-72zM524 67c-14-5-36-11-64-11-71 0-121 38-121 91-1 40 35 62 62 75s37 22 37 34c0 18-22 27-43 27-29 0-44-4-68-14l-9-5-10 62c17 8 48 14 80 15 75 0 124-37 124-95 0-31-19-55-62-75-26-14-42-22-42-36 0-12 14-24 43-24 24-1 42 5 56 11l7 3 10-58zM636 63h-56c-17 0-30 5-38 23l-107 248h76l15-42h93l9 42h67L636 63zm-88 171l29-78 9-27 5 24 16 81h-59zM217 63l-70 184-7-38C128 156 91 107 50 84l64 250h77l115-271h-89z" fill="white"/>
+                                <path d="M100 63H0l-1 5c78 20 130 68 152 126L129 86c-4-18-17-22-29-23z" fill="#EC982D"/>
+                            </svg>
+                        </div>
+
+                        <!-- Mastercard -->
+                        <div class="payment-card" onclick="selectPayment(this)" data-method="Mastercard">
+                            <svg width="48" height="28" viewBox="0 0 152 108" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="152" height="108" rx="10" fill="#252525"/>
+                                <circle cx="58" cy="54" r="30" fill="#EB001B"/>
+                                <circle cx="94" cy="54" r="30" fill="#F79E1B"/>
+                                <path d="M76 30a30 30 0 0 1 0 48 30 30 0 0 1 0-48z" fill="#FF5F00"/>
+                            </svg>
+                        </div>
+
+                    </div>
+                    <div class="divider"></div>
+                    <p id="selected-payment-display" style="color:var(--text-secondary); font-size:0.85rem;">Selected: <strong>MTN MoMo</strong></p>
+                </div>
+            </div>
+
+            <!-- App Feedback -->
+            <div class="section-card">
+                <div class="section-title">App Feedback</div>
+                <div class="section-body">
+                    <div id="feedback-alert" class="alert-msg"></div>
+                    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:1rem;">How are you enjoying
+                        the KoffyboyOfficial experience?</p>
+                    <div class="feedback-stars" id="star-container">
+                        <span class="star" data-val="1" onclick="rateStar(1)">★</span>
+                        <span class="star" data-val="2" onclick="rateStar(2)">★</span>
+                        <span class="star" data-val="3" onclick="rateStar(3)">★</span>
+                        <span class="star" data-val="4" onclick="rateStar(4)">★</span>
+                        <span class="star" data-val="5" onclick="rateStar(5)">★</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback-text">Tell us more (optional)</label>
+                        <input type="text" id="feedback-text" placeholder="What could be better?">
+                    </div>
+                    <button class="btn-primary" onclick="submitFeedback()" style="margin-top:0.5rem;">Send
+                        Feedback</button>
+                </div>
+            </div>
+
+            <!-- Hosted Events Dashboard -->
+            <div class="section-card" id="hosted-events-section" style="display: none;">
+                <div class="section-title">My Hosted Events</div>
+                <div class="section-body">
+                    <div id="hosted-events-list">
+                        <p style="color:var(--text-secondary); font-size:0.88rem; text-align:center;">Loading your events...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order History -->
+            <div class="section-card">
+                <div class="section-title">Order History</div>
+                <div class="section-body">
+                    <div id="orders-list">
+                        <p style="color:var(--text-secondary); font-size:0.88rem; text-align:center;">No orders found yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="section-card">
+                <div class="section-title">Account Actions</div>
+                <div class="section-body" style="display:flex; gap:1rem; flex-wrap:wrap;">
+                    <button class="btn-outline" onclick="logout()">🚪 Logout</button>
+                    <button class="btn-danger">🗑️ Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MoMo Modal -->
+    <div id="momo-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="momo-title">MTN MoMo Details</h3>
+                <button class="close-modal" onclick="closeModals()">&times;</button>
+            </div>
+            <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:1.5rem;">Enter your mobile money number to set up autopay.</p>
+            <form id="momo-form" onsubmit="saveMoMoMethod(event)">
+                <div class="form-group">
+                    <label for="momo-phone">Phone Number</label>
+                    <input type="tel" id="momo-phone" required placeholder="+260...">
+                </div>
+                <div class="form-group">
+                    <label for="momo-name">Account Name</label>
+                    <input type="text" id="momo-name" required placeholder="Full Name">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Save & Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Card Modal -->
+    <div id="card-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="card-title">Card Details</h3>
+                <button class="close-modal" onclick="closeModals()">&times;</button>
+            </div>
+            <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:1.5rem;">Secure payments powered by Stripe.</p>
+            <form id="card-form" onsubmit="saveCardMethod(event)">
+                <div class="form-group">
+                    <label for="card-num">Card Number</label>
+                    <input type="text" id="card-num" required placeholder="0000 0000 0000 0000">
+                </div>
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="card-exp">Expiry (MM/YY)</label>
+                        <input type="text" id="card-exp" required placeholder="MM/YY">
+                    </div>
+                    <div class="form-group">
+                        <label for="card-cvv">CVV</label>
+                        <input type="text" id="card-cvv" required placeholder="123">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Save & Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentRating = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+            if (!user) {
+                document.getElementById('not-logged-in').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('account-content').style.display = 'block';
+
+            // Populate fields
+            const initials = ((user.first_name || '?')[0] + (user.last_name || '?')[0]).toUpperCase();
+            document.getElementById('avatar-initials').textContent = initials;
+            document.getElementById('display-name').textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User';
+            document.getElementById('display-phone').textContent = user.phone_number || '—';
+            document.getElementById('edit-fname').value = user.first_name || '';
+            document.getElementById('edit-lname').value = user.last_name || '';
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-phone').value = user.phone_number || '';
+
+            if (user.is_subscribed) {
+                document.getElementById('subscribe-banner').style.display = 'none';
+                document.getElementById('tier-badge').textContent = '✨ Premium';
+                document.getElementById('tier-badge').className = 'badge badge-premium';
+            }
+        });
+
+        function saveProfile() {
+            const user = JSON.parse(localStorage.getItem('koffy_user')) || {};
+            user.first_name = document.getElementById('edit-fname').value;
+            user.last_name = document.getElementById('edit-lname').value;
+            user.email = document.getElementById('edit-email').value;
+            user.phone_number = document.getElementById('edit-phone').value;
+            localStorage.setItem('koffy_user', JSON.stringify(user));
+            showAlert('profile-alert', '✅ Profile updated successfully!', 'success');
+
+            // Update display
+            document.getElementById('display-name').textContent = `${user.first_name} ${user.last_name}`.trim();
+            document.getElementById('display-phone').textContent = user.phone_number;
+        }
+
+        function changePassword() {
+            const np = document.getElementById('new-pw').value;
+            const cp = document.getElementById('confirm-pw').value;
+            if (np !== cp) {
+                showAlert('password-alert', '❌ New passwords do not match.', 'error');
+                return;
+            }
+            if (np.length < 6) {
+                showAlert('password-alert', '❌ Password must be at least 6 characters.', 'error');
+                return;
+            }
+            showAlert('password-alert', '✅ Password updated successfully! (Simulated)', 'success');
+            document.getElementById('current-pw').value = '';
+            document.getElementById('new-pw').value = '';
+            document.getElementById('confirm-pw').value = '';
+        }
+
+        function selectPayment(el) {
+            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            const method = el.dataset.method;
+            document.getElementById('selected-payment-display').innerHTML = `Selected: <strong>${method.toUpperCase()}</strong>`;
+
+            // Open Modal
+            if (method.includes('MoMo')) {
+                document.getElementById('momo-title').textContent = `${method} Details`;
+                document.getElementById('momo-modal').classList.add('active');
+            } else {
+                document.getElementById('card-title').textContent = `${method} Details`;
+                document.getElementById('card-modal').classList.add('active');
+            }
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        }
+
+        async function saveMoMoMethod(e) {
+            e.preventDefault();
+            const phone = document.getElementById('momo-phone').value;
+            const name = document.getElementById('momo-name').value;
+            const method = document.querySelector('.payment-card.active').dataset.method;
+            const type = method.includes('MTN') ? 'momo_mtn' : 'momo_airtel';
+
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+            
+            try {
+                const res = await fetch('http://localhost:5000/api/payments/method', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        method_type: type,
+                        token: phone,
+                        last4: phone.slice(-4)
+                    })
+                });
+                
+                if (res.ok) {
+                    showAlert('profile-alert', `✅ ${method} saved! You can now subscribe.`, 'success');
+                    closeModals();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function saveCardMethod(e) {
+            e.preventDefault();
+            // In real app, use Stripe.js to get token
+            const num = document.getElementById('card-num').value;
+            const method = document.querySelector('.payment-card.active').dataset.method;
+            const type = method.includes('Visa') ? 'card_visa' : 'card_mastercard';
+            
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+
+            try {
+                const res = await fetch('http://localhost:5000/api/payments/method', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        method_type: type,
+                        token: 'tok_simulated_' + Math.random().toString(36).substr(2, 9),
+                        last4: num.slice(-4)
+                    })
+                });
+                
+                if (res.ok) {
+                    showAlert('profile-alert', `✅ ${method} saved! You can now subscribe.`, 'success');
+                    closeModals();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function initiateSubscription() {
+            // Start real Paystack payment for subscription (ZMW 20)
+            await startPaystackPayment(20, 'subscription');
+        }
+
+        async function updateSubStatus() {
+            try {
+                const res = await fetchWithAuth('http://localhost:5000/api/payments/status');
+                const data = await res.json();
+                
+                if (data.status === 'grace') {
+                    document.getElementById('grace-banner').style.display = 'block';
+                    // Calculate days left
+                    const exp = new Date(data.grace_expires);
+                    const now = new Date();
+                    const diffTime = Math.abs(exp - now);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    document.getElementById('grace-days').textContent = diffDays;
+                }
+            } catch(e) {
+                console.error("Could not fetch sub status", e);
+            }
+        }
+
+        async function loadHostedEvents() {
+            try {
+                const res = await fetchWithAuth('http://localhost:5000/api/events/hosted');
+                const data = await res.json();
+                const container = document.getElementById('hosted-events-list');
+                
+                if (data.hosted_events && data.hosted_events.length > 0) {
+                    document.getElementById('hosted-events-section').style.display = 'block';
+                    container.innerHTML = '';
+                    
+                    data.hosted_events.forEach(ev => {
+                        let content = '';
+                        if (ev.is_ticketed) {
+                            content = `
+                                <div style="margin-top: 1rem; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.85rem;">Tickets Sold:</span>
+                                        <strong>${ev.tickets_sold} / ${ev.capacity}</strong>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.85rem;">Ticket Price:</span>
+                                        <span>ZMW ${ev.ticket_price}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: var(--error-color);">
+                                        <span style="font-size: 0.85rem;">Platform Fee (5%):</span>
+                                        <span>- ZMW ${(ev.tickets_sold * ev.ticket_price * 0.05).toFixed(2)}</span>
+                                    </div>
+                                    <div style="border-top: 1px solid var(--border-color); margin: 0.8rem 0;"></div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="color: var(--success-color); font-weight: 600;">Expected Payout:</span>
+                                        <span style="font-size: 1.2rem; font-weight: 800; color: var(--primary-color);">ZMW ${ev.expected_payout.toFixed(2)}</span>
+                                    </div>
+                                    <div style="text-align: right; margin-top: 0.5rem;">
+                                        <span class="badge ${ev.payout_status === 'paid' ? 'badge-premium' : 'badge-free'}">${ev.payout_status === 'paid' ? 'Payout Sent' : 'Payout Pending'}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        const div = document.createElement('div');
+                        div.style.cssText = 'border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;';
+                        div.innerHTML = `
+                            <div style="display:flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 4px;">${ev.title || ev.type + ' Booking'}</div>
+                                    <div style="color: var(--text-secondary); font-size: 0.85rem;">Date: ${ev.date}</div>
+                                </div>
+                                <span class="badge ${ev.status === 'confirmed' ? 'badge-premium' : 'badge-free'}">${ev.status.toUpperCase()}</span>
+                            </div>
+                            ${content}
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch(e) {
+                console.error("Could not fetch hosted events", e);
+            }
+        }
+
+        async function loadOrderHistory() {
+            try {
+                const res = await fetchWithAuth('http://localhost:5000/api/store/my-orders');
+                const data = await res.json();
+                
+                const list = document.getElementById('orders-list');
+                if (data.orders && data.orders.length > 0) {
+                    list.innerHTML = '';
+                    data.orders.forEach(o => {
+                        const items = o.items.map(i => `${i.quantity}x ${i.product_name}`).join(', ');
+                        const div = document.createElement('div');
+                        div.className = 'order-item';
+                        div.innerHTML = `
+                            <div class="order-top">
+                                <span class="order-id">Order #${o.id}</span>
+                                <span class="order-status status-${o.status}">${o.status}</span>
+                            </div>
+                            <div class="order-products">${items}</div>
+                            <div class="order-date" style="margin-top:0.5rem;">Total: ZMW ${o.total_price.toFixed(2)} • ${o.created_at}</div>
+                        `;
+                        list.appendChild(div);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function rateStar(val) {
+            currentRating = val;
+            document.querySelectorAll('.star').forEach((s, i) => {
+                s.classList.toggle('active', i < val);
+            });
+        }
+
+        function submitFeedback() {
+            if (!currentRating) {
+                showAlert('feedback-alert', '⭐ Please select a star rating first.', 'error');
+                return;
+            }
+            showAlert('feedback-alert', '🎉 Thank you for your feedback!', 'success');
+            document.getElementById('feedback-text').value = '';
+            currentRating = 0;
+            document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+        }
+
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.style.display = 'block';
+            if (type === 'success') {
+                el.style.background = 'rgba(0,230,118,0.1)';
+                el.style.border = '1px solid rgba(0,230,118,0.3)';
+                el.style.color = 'var(--success-color)';
+            } else {
+                el.style.background = 'rgba(255,23,68,0.1)';
+                el.style.border = '1px solid rgba(255,23,68,0.3)';
+                el.style.color = 'var(--error-color)';
+            }
+            setTimeout(() => el.style.display = 'none', 4000);
+        }
+
+        updateSubStatus();
+        loadOrderHistory();
+        loadHostedEvents();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KoffyboyOfficial | Artist Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div id="splash-greeting">Hello...</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="booking.html">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login">Login</a>
+            <a href="signup.html" class="btn-signup">Sign Up</a>
+        </div>
+        <div class="user-profile hidden"></div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="fade-in-up">Experience the Vibe.</h1>
+        <p class="fade-in-up delay-1">The official platform for Koffyboy. Stream the latest music, book for events, and get exclusive merchandise.</p>
+        <button class="btn-primary fade-in-up delay-2" onclick="window.location.href='music.html'">Listen Now</button>
+    </section>
+
+    <section class="highlights-section">
+        <h2 class="fade-in-up">Artist Highlights</h2>
+        <div class="slider-container fade-in-up delay-1">
+            <div class="slides" id="slides">
+                <!-- Dynamic highlights -->
+                <div style="padding: 3rem; color: var(--text-secondary);">Loading vibes...</div>
+            </div>
+            <button class="slider-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="slider-btn next" onclick="moveSlide(1)">&#10095;</button>
+        </div>
+    </section>
+
+    <section class="bio-section fade-in-up">
+        <img src="img/koffyboy_profile.png" alt="Koffyboy Profile" class="bio-image" id="bio-img">
+        <div class="bio-text">
+            <h2>About Koffyboy</h2>
+            <p id="bio-content">Loading the journey...</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initSplashScreen();
+            checkAuthState();
+            loadArtistData();
+        });
+
+        async function loadArtistData() {
+            try {
+                // Fetch Profile
+                const profRes = await fetch('http://localhost:5000/api/artist-mgmt/profile');
+                const profile = await profRes.json();
+                if (profile.bio && profile.bio !== "No bio yet") {
+                    document.getElementById('bio-content').textContent = profile.bio;
+                }
+                if (profile.profile_image_url) {
+                    document.getElementById('bio-img').src = profile.profile_image_url;
+                }
+
+                // Fetch Highlights
+                const highRes = await fetch('http://localhost:5000/api/artist-mgmt/highlights');
+                const highlights = await highRes.json();
+                const slides = document.getElementById('slides');
+                
+                if (highlights.length > 0) {
+                    slides.innerHTML = '';
+                    highlights.forEach(h => {
+                        const div = document.createElement('div');
+                        div.className = 'slide';
+                        div.innerHTML = `<img src="${h.image_url}" alt="${h.caption}">`;
+                        slides.appendChild(div);
+                    });
+                    startAutoSlide();
+                } else {
+                    slides.innerHTML = '<div style="padding: 3rem; color: var(--text-secondary);">More highlights coming soon!</div>';
+                }
+            } catch (err) {
+                console.error("Error loading artist data:", err);
+            }
+        }
+    </script>
+</body>
+</html>

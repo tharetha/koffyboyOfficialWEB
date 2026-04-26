@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Koffyboy | KoffyboyOfficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="logo">KOFFYBOY<span class="logo-official">official</span></a>
+        <div class="nav-links">
+            <a href="music.html">Music</a>
+            <a href="booking.html" style="color: var(--primary-color);">Booking</a>
+            <a href="store.html">Store</a>
+        </div>
+        <div class="auth-buttons">
+            <a href="login.html" class="btn-login">Login</a>
+        </div>
+        <div class="user-profile hidden"></div>
+    </nav>
+
+    <div style="max-width: 900px; margin: 2rem auto; padding: 0 1.5rem 4rem;">
+        <h2 style="margin-bottom: 0.5rem; text-align: center; font-size: 2rem;">Choose Event Type</h2>
+        <p style="text-align:center; color:var(--text-secondary); margin-bottom:2rem;">Select the type of event you'd like to book Koffyboy for.</p>
+        
+        <div class="events-container" id="events-container">
+            <a class="event-card" href="book-event.html?type=show">
+                <img class="event-card-img" src="img/event_show.png" alt="Show">
+                <div class="event-card-label">Show</div>
+            </a>
+            <a class="event-card" href="book-event.html?type=wedding">
+                <img class="event-card-img" src="img/event_wedding.png" alt="Wedding">
+                <div class="event-card-label">Wedding</div>
+            </a>
+            <a class="event-card" href="book-event.html?type=club">
+                <img class="event-card-img" src="img/event_club.png" alt="Club Appearance">
+                <div class="event-card-label">Club Appearance</div>
+            </a>
+            <a class="event-card" href="book-event.html?type=private">
+                <div class="event-card-img" style="background: linear-gradient(135deg, #1a0a0f 0%, #2d1b24 50%, #1a0a0f 100%);"></div>
+                <div class="event-card-label">Private Event</div>
+            </a>
+            <a class="event-card" href="book-event.html?type=custom">
+                <div class="event-card-img" style="background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #0d0d1a 100%);"></div>
+                <span class="event-card-custom-icon">+</span>
+                <div class="event-card-label">Custom Event</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        let selectedType = null;
+        let selectedDate = null;
+        let currentPrice = 0;
+        
+        let displayMonth = new Date().getMonth();
+        let displayYear = new Date().getFullYear();
+
+        const cards = document.querySelectorAll('.event-card');
+        const calendarSection = document.getElementById('calendar-section');
+        const detailsSection = document.getElementById('booking-details-section');
+        
+        // Card Selection
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                cards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedType = card.dataset.type;
+                currentPrice = card.dataset.price;
+                
+                document.getElementById('display-event').textContent = card.querySelector('h3').textContent;
+                document.getElementById('estimated-price').textContent = currentPrice == 0 ? "TBD" : `$${currentPrice}`;
+                
+                calendarSection.classList.remove('hidden');
+                detailsSection.classList.add('hidden');
+                selectedDate = null;
+                renderCalendar();
+            });
+        });
+
+        // Calendar Logic
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        document.getElementById('prev-month').addEventListener('click', () => {
+            displayMonth--;
+            if(displayMonth < 0) { displayMonth = 11; displayYear--; }
+            renderCalendar();
+        });
+        document.getElementById('next-month').addEventListener('click', () => {
+            displayMonth++;
+            if(displayMonth > 11) { displayMonth = 0; displayYear++; }
+            renderCalendar();
+        });
+
+        async function renderCalendar() {
+            document.getElementById('current-month').textContent = `${monthNames[displayMonth]} ${displayYear}`;
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(d => {
+                const el = document.createElement('div');
+                el.className = 'day-name';
+                el.textContent = d;
+                grid.appendChild(el);
+            });
+
+            const firstDay = new Date(displayYear, displayMonth, 1).getDay();
+            const daysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
+
+            for(let i=0; i<firstDay; i++) {
+                const el = document.createElement('div');
+                el.className = 'calendar-day empty';
+                grid.appendChild(el);
+            }
+
+            for(let i=1; i<=daysInMonth; i++) {
+                const el = document.createElement('div');
+                el.className = 'calendar-day';
+                el.textContent = i;
+                
+                // Simulate backend check (for demo, random dates are booked)
+                const isBooked = Math.random() < 0.2; 
+                
+                if(isBooked) {
+                    el.classList.add('booked');
+                } else {
+                    el.classList.add('available');
+                    el.addEventListener('click', () => {
+                        document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected-date'));
+                        el.classList.add('selected-date');
+                        selectedDate = `${displayYear}-${String(displayMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                        document.getElementById('display-date').textContent = selectedDate;
+                        detailsSection.classList.remove('hidden');
+                        
+                        // Scroll to details
+                        detailsSection.scrollIntoView({behavior: 'smooth'});
+                    });
+                }
+                grid.appendChild(el);
+            }
+        }
+
+        // Form Submit
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('koffy_user'));
+            const alertEl = document.getElementById('booking-alert');
+            
+            if (!user) {
+                alertEl.textContent = 'You must be logged in to book an event.';
+                alertEl.style.backgroundColor = 'rgba(255, 23, 68, 0.2)';
+                alertEl.style.color = 'var(--error-color)';
+                alertEl.classList.remove('hidden');
+                setTimeout(() => window.location.href = 'login.html', 2000);
+                return;
+            }
+
+            const payload = {
+                user_id: user.id,
+                event_type: selectedType,
+                event_date: selectedDate,
+                location: document.getElementById('location').value
+            };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/bookings/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    alertEl.textContent = 'Booking requested successfully! We will contact you soon.';
+                    alertEl.style.backgroundColor = 'rgba(0, 230, 118, 0.2)';
+                    alertEl.style.color = 'var(--success-color)';
+                    alertEl.classList.remove('hidden');
+                    document.getElementById('booking-form').reset();
+                    detailsSection.classList.add('hidden');
+                    calendarSection.classList.add('hidden');
+                    cards.forEach(c => c.classList.remove('selected'));
+                } else {
+                    alertEl.textContent = data.error || 'Failed to request booking.';
+                    alertEl.style.backgroundColor = 'rgba(255, 23, 68, 0.2)';
+                    alertEl.style.color = 'var(--error-color)';
+                    alertEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                alertEl.textContent = 'Server error. Please try again later.';
+                alertEl.style.backgroundColor = 'rgba(255, 23, 68, 0.2)';
+                alertEl.style.color = 'var(--error-color)';
+                alertEl.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
