@@ -1,9 +1,13 @@
-# ─── OS ───────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# ─── Ignore everything except frontend ────────────────────
+# ─── Only track the frontend folder ──────────────────────
 /*
 !/frontend
 !.gitignore
+
+# ─── Never commit secrets ─────────────────────────────────
+.env
+*.env
+
+# ─── OS noise ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
