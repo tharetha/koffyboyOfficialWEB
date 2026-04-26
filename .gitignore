@@ -1,38 +1,9 @@
-# ─── Python ───────────────────────────────────────────────
-venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-dist/
-build/
-.env
-*.env
-
-# ─── Database ─────────────────────────────────────────────
-*.db
-*.sqlite
-*.sqlite3
-database/*.db
-instance/
-
-# ─── Flutter / Dart ───────────────────────────────────────
-artist_app/.dart_tool/
-artist_app/.flutter-plugins
-artist_app/.flutter-plugins-dependencies
-artist_app/build/
-artist_app/.packages
-artist_app/pubspec.lock
-
-# ─── Android ──────────────────────────────────────────────
-artist_app/android/.gradle/
-artist_app/android/local.properties
-artist_app/android/app/debug/
-artist_app/android/app/release/
-
-# ─── General ──────────────────────────────────────────────
+# ─── OS ───────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
-*.log
+
+# ─── Ignore everything except frontend ────────────────────
+/*
+!/frontend
+!.gitignore
