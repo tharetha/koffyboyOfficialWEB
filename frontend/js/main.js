@@ -169,10 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthState();
     
     // Mobile Menu Toggle
+    console.log('Main.js loaded, checking for mobile menu...');
     const mobileMenu = document.getElementById('mobile-menu');
     const navContainer = document.getElementById('nav-container');
     
     if (mobileMenu && navContainer) {
+        console.log('Mobile menu found, initializing listeners...');
         // Create overlay if it doesn't exist
         let overlay = document.querySelector('.nav-overlay');
         if (!overlay) {
@@ -181,7 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(overlay);
         }
 
-        const toggleMenu = () => {
+        const toggleMenu = (e) => {
+            if (e) e.preventDefault();
+            console.log('Toggle menu triggered');
+            // alert('Menu icon clicked!'); // Temporary for verification
             mobileMenu.classList.toggle('active');
             navContainer.classList.toggle('active');
             overlay.classList.toggle('active');

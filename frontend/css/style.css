@@ -107,8 +107,9 @@ nav {
     flex-direction: column;
     gap: 6px;
     cursor: pointer;
-    z-index: 1001;
-    padding: 5px;
+    z-index: 2100; /* Higher than sidebar */
+    padding: 15px; /* Increased hit area */
+    margin-right: -10px;
 }
 
 .menu-toggle span {
