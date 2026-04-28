@@ -196,14 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // Close menu when a link is clicked
+        // Verify links are clickable and logged
         const navLinks = navContainer.querySelectorAll('a');
         navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-                navContainer.classList.remove('active');
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
+            link.addEventListener('click', (e) => {
+                console.log('Navigating to:', link.getAttribute('href'));
+                // No preventDefault() here, let the browser navigate
             });
         });
     }
