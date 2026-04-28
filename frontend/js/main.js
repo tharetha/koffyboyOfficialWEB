@@ -196,12 +196,18 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileMenu.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
+        // Prevent clicks inside the sidebar from bubbling up to the overlay/nav
+        navContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
         // Verify links are clickable and logged
         const navLinks = navContainer.querySelectorAll('a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 console.log('Navigating to:', link.getAttribute('href'));
-                // No preventDefault() here, let the browser navigate
+                // Explicitly allow navigation and stop any further bubbling
+                e.stopPropagation();
             });
         });
     }
