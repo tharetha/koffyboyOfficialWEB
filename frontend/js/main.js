@@ -186,10 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const toggleMenu = (e) => {
             if (e) e.preventDefault();
             console.log('Toggle menu triggered');
-            // alert('Menu icon clicked!'); // Temporary for verification
             mobileMenu.classList.toggle('active');
             navContainer.classList.toggle('active');
             overlay.classList.toggle('active');
+            document.body.classList.toggle('nav-active');
             document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
         };
 
