@@ -172,7 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Main.js loaded, checking for mobile menu...');
     const mobileMenu = document.getElementById('mobile-menu');
     const navContainer = document.getElementById('nav-container');
+    const navBar = document.querySelector('nav');
     
+    // Inject Back Button on sub-pages for mobile
+    const isSubPage = !window.location.pathname.endsWith('index.html') && window.location.pathname !== '/';
+    if (isSubPage && navBar && !document.querySelector('.nav-back')) {
+        const backBtn = document.createElement('a');
+        backBtn.href = 'index.html';
+        backBtn.className = 'nav-back';
+        backBtn.innerHTML = '&#10094; Back';
+        navBar.insertBefore(backBtn, navBar.firstChild);
+    }
+
     if (mobileMenu && navContainer) {
         console.log('Mobile menu found, initializing listeners...');
         // Create overlay if it doesn't exist
@@ -183,31 +194,46 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(overlay);
         }
 
-        const toggleMenu = (e) => {
-            if (e) e.preventDefault();
-            console.log('Toggle menu triggered');
-            mobileMenu.classList.toggle('active');
-            navContainer.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.classList.toggle('nav-active');
-            document.body.style.overflow = navContainer.classList.contains('active') ? 'hidden' : '';
+        const openMenu = () => {
+            mobileMenu.classList.add('active');
+            navContainer.classList.add('active');
+            overlay.classList.add('active');
+            document.body.classList.add('nav-active');
+            document.body.style.overflow = 'hidden';
         };
 
-        mobileMenu.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
+        const closeMenu = () => {
+            mobileMenu.classList.remove('active');
+            navContainer.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.classList.remove('nav-active');
+            document.body.style.overflow = '';
+        };
+
+        mobileMenu.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (navContainer.classList.contains('active')) closeMenu();
+            else openMenu();
+        });
+
+        overlay.addEventListener('click', closeMenu);
 
         // Prevent clicks inside the sidebar from bubbling up to the overlay/nav
         navContainer.addEventListener('click', (e) => {
             e.stopPropagation();
         });
 
-        // Verify links are clickable and logged
+        // Forced navigation for sidebar links
         const navLinks = navContainer.querySelectorAll('a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
-                console.log('Navigating to:', link.getAttribute('href'));
-                // Explicitly allow navigation and stop any further bubbling
-                e.stopPropagation();
+                const href = link.getAttribute('href');
+                if (href && href !== '#' && !href.startsWith('javascript:')) {
+                    console.log('Forcing navigation to:', href);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = href;
+                }
             });
         });
     }
