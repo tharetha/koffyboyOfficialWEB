@@ -8,7 +8,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=11">
+    <link rel="stylesheet" href="css/style.css?v=12">
     <style>
         .store-grid {
             display: grid;
@@ -83,34 +83,40 @@
         <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
     </footer>
 
-    <script src="js/main.js?v=11"></script>
+    <script src="js/main.js?v=12"></script>
     <script>
         let cart = JSON.parse(localStorage.getItem('koffy_cart')) || [];
 
         document.addEventListener('DOMContentLoaded', loadProducts);
 
         async function loadProducts() {
+            const grid = document.getElementById('store-grid');
+            grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:3rem;color:var(--text-secondary);">Loading...</div>';
             try {
-                const res = await fetch('/api/store/');
+                const res = await fetch('/api/store/products');
                 const data = await res.json();
-                
-                const grid = document.getElementById('store-grid');
                 grid.innerHTML = '';
+
+                if (!data.products || data.products.length === 0) {
+                    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:4rem;color:var(--text-secondary);">Merch dropping soon. Check back later!</div>';
+                    return;
+                }
                 
                 data.products.forEach(p => {
                     const div = document.createElement('div');
                     div.className = 'product-card';
                     div.innerHTML = `
-                        <div class="product-image" style="background: url('${p.image_url || 'https://via.placeholder.com/250'}') center/cover;"></div>
+                        <div class="product-image" style="background: url('${p.image_url || ''}') center/cover no-repeat; background-color:#2a2a2a;"></div>
                         <div class="product-info">
                             <h3>${p.name}</h3>
-                            <p style="color: var(--text-secondary); margin: 0.5rem 0;">ZMW ${p.price.toFixed(2)}</p>
+                            <p style="color: var(--text-secondary); margin: 0.5rem 0;">ZMW ${Number(p.price).toFixed(2)}</p>
                             <button class="btn-primary" onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
                         </div>
                     `;
                     grid.appendChild(div);
                 });
             } catch (err) {
+                grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:3rem;color:var(--text-secondary);">Could not load store.</div>';
                 console.error("Error loading products:", err);
             }
         }

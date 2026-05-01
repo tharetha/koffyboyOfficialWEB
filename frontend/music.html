@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music | KoffyboyOfficial</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=11">
+    <link rel="stylesheet" href="css/style.css?v=12">
     <style>
         .music-page { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem 5rem; }
 
@@ -361,9 +361,9 @@
                     </div>
                 </div>
                 <div class="album-info">
-                    <h3 id="album-name">The Beginning</h3>
-                    <p id="album-artist">Koffyboy · 2026</p>
-                    <span class="album-tag" id="album-track-count">2 Tracks</span>
+                    <h3 id="album-name">—</h3>
+                    <p id="album-artist">—</p>
+                    <span class="album-tag" id="album-track-count">0 Tracks</span>
                 </div>
             </div>
 
@@ -379,9 +379,8 @@
                 </div>
 
                 <div class="track-list" id="track-list">
-                    <!-- Dynamic tracks loaded from backend -->
                     <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
-                        More music coming soon!
+                        No tracks released yet.
                     </div>
                 </div>
             </div>
@@ -425,7 +424,7 @@
         <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
     </footer>
 
-    <script src="js/main.js?v=11"></script>
+    <script src="js/main.js?v=12"></script>
     <script>
         const engine       = document.getElementById('audio-engine');
         const playerBar    = document.getElementById('player-bar');
@@ -469,13 +468,19 @@
                 const data = await res.json();
                 
                 if (data.albums && data.albums.length > 0) {
-                    const album = data.albums[0]; // For now load first album
-                    document.getElementById('album-title').textContent = album.title;
-                    document.getElementById('album-meta').textContent = `${album.release_date.split('-')[0]} • ${album.track_count} Tracks`;
+                    const album = data.albums[0];
+                    document.getElementById('album-name').textContent = album.title;
+                    document.getElementById('album-artist').textContent = `Koffyboy · ${album.release_date.split('-')[0]}`;
+                    document.getElementById('album-track-count').textContent = `${album.track_count} Track${album.track_count !== 1 ? 's' : ''}`;
                     if (album.cover_image_url) {
-                        document.querySelector('.album-poster img').src = album.cover_image_url;
+                        const coverWrap = document.getElementById('album-cover-wrap');
+                        coverWrap.innerHTML = `<img src="${album.cover_image_url}" alt="${album.title}" style="width:100%;height:280px;object-fit:cover;display:block;">`;
                     }
                     loadTracks(album.id);
+                } else {
+                    document.getElementById('album-name').textContent = 'No Albums Yet';
+                    document.getElementById('album-artist').textContent = 'Coming Soon';
+                    document.getElementById('album-track-count').textContent = '0 Tracks';
                 }
             } catch (err) {
                 console.error("Error loading albums:", err);
@@ -483,28 +488,38 @@
         }
 
         async function loadTracks(albumId) {
+            const token = localStorage.getItem('koffy_token');
+            const headers = token ? {'Authorization': `Bearer ${token}`} : {};
             try {
-                const res = await fetchWithAuth(`/api/music/tracks?album_id=${albumId}`);
+                const res = await fetch(`/api/music/tracks?album_id=${albumId}`, {headers});
                 const data = await res.json();
-                tracks = data.tracks;
+                tracks = data.tracks || [];
                 
                 const trackList = document.getElementById('track-list');
-                trackList.innerHTML = '';
                 
+                if (tracks.length === 0) {
+                    trackList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-secondary);">No tracks released yet.</div>';
+                    return;
+                }
+
+                trackList.innerHTML = '';
                 tracks.forEach((track, i) => {
                     const div = document.createElement('div');
                     div.className = 'track-item';
                     div.onclick = () => playTrack(div, track.audio_url, track.title, i + 1);
                     
+                    const isSubscribed = JSON.parse(localStorage.getItem('koffy_user'))?.is_subscribed;
+                    const badgeClass = data.full_access ? 'badge-full' : 'badge-preview';
+                    const badgeText = data.full_access ? 'Full' : 'Preview';
+
                     div.innerHTML = `
                         <div class="track-num">${(i + 1).toString().padStart(2, '0')}</div>
-                        <div class="track-info">
-                            <div class="track-title">${track.title}</div>
-                            <div class="track-badge ${track.is_preview ? 'badge-preview' : 'badge-full'}">
-                                ${track.is_preview ? 'Preview' : 'Full'}
-                            </div>
+                        <button class="play-btn">▶</button>
+                        <div class="track-meta">
+                            <h4>${track.title}</h4>
+                            <p>Koffyboy</p>
                         </div>
-                        <div class="track-play-icon">▶</div>
+                        <span class="track-badge ${badgeClass}">${badgeText}</span>
                     `;
                     trackList.appendChild(div);
                 });

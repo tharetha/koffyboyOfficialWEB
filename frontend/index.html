@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KoffyboyOfficial | Artist Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=11">
+    <link rel="stylesheet" href="css/style.css?v=12">
 </head>
 <body>
 
@@ -41,11 +41,11 @@
 
     <section class="bio-section fade-in-up">
         <div class="bio-image-container">
-            <img src="img/koffyboy_profile.png" alt="Koffyboy Profile" class="bio-image" id="bio-img">
+            <img src="" alt="Koffyboy Profile" class="bio-image" id="bio-img" style="display:none;">
         </div>
         <div class="bio-text">
             <h2>About Koffyboy</h2>
-            <p id="bio-content">Loading the journey...</p>
+            <p id="bio-content" style="color: var(--text-secondary);">Bio coming soon.</p>
         </div>
     </section>
 
@@ -54,7 +54,7 @@
         <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
     </footer>
 
-    <script src="js/main.js?v=11"></script>
+    <script src="js/main.js?v=12"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             initSplashScreen();
@@ -67,11 +67,21 @@
                 // Fetch Profile
                 const profRes = await fetch('/api/artist-mgmt/profile');
                 const profile = await profRes.json();
-                if (profile.bio && profile.bio !== "No bio yet") {
-                    document.getElementById('bio-content').textContent = profile.bio;
+
+                const bioEl = document.getElementById('bio-content');
+                const bioImg = document.getElementById('bio-img');
+
+                if (profile.bio && profile.bio.trim() !== '' && profile.bio !== 'No bio yet.') {
+                    bioEl.textContent = profile.bio;
+                } else {
+                    bioEl.textContent = 'Bio coming soon.';
                 }
+
                 if (profile.profile_image_url) {
-                    document.getElementById('bio-img').src = profile.profile_image_url;
+                    bioImg.src = profile.profile_image_url;
+                    bioImg.style.display = 'block';
+                } else {
+                    bioImg.style.display = 'none';
                 }
 
                 // Fetch Highlights
@@ -84,12 +94,12 @@
                     highlights.forEach(h => {
                         const div = document.createElement('div');
                         div.className = 'slide';
-                        div.innerHTML = `<img src="${h.image_url}" alt="${h.caption}">`;
+                        div.innerHTML = `<img src="${h.image_url}" alt="${h.caption || 'Highlight'}"`;
                         slides.appendChild(div);
                     });
                     startAutoSlide();
                 } else {
-                    slides.innerHTML = '<div style="padding: 3rem; color: var(--text-secondary);">More highlights coming soon!</div>';
+                    slides.innerHTML = '<div style="padding: 3rem; color: var(--text-secondary); text-align:center;">Highlights coming soon.</div>';
                 }
             } catch (err) {
                 console.error("Error loading artist data:", err);
