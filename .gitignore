@@ -1,6 +1,8 @@
 # ─── Only track the frontend folder and deployment config ──
 /*
 !/frontend
+!/backend
+!/artist_app
 !/docker-compose.yml
 !.gitignore
 !.env.example
