@@ -31,7 +31,10 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
   Future<void> _fetchProfile() async {
     setState(() => _isLoading = true);
     try {
-      final response = await ApiService().get('/artist-mgmt/profile');
+      final response = await ApiService().get('/artist-mgmt/profile').timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('Connection timed out'),
+      );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _bioController.text = data['bio'] ?? '';
@@ -47,7 +50,8 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
         });
       }
     } catch (e) {
-      print('Error fetching profile: $e');
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not load profile: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

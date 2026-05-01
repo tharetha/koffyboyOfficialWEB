@@ -26,15 +26,22 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
   Future<void> _fetchMusic() async {
     setState(() => _isLoading = true);
     try {
-      final response = await ApiService().get('/store/albums'); // Reusing store's album fetch for simplicity, or we can make an artist specific one
+      final response = await ApiService().get('/music/albums').timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('Connection timed out'),
+      );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
           _albums = data['albums'] ?? [];
         });
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server error: ${response.statusCode}')));
       }
     } catch (e) {
-      print('Error fetching music: $e');
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not load music: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

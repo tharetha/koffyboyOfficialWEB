@@ -25,15 +25,22 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
   Future<void> _fetchProducts() async {
     setState(() => _isLoading = true);
     try {
-      final response = await ApiService().get('/store/products');
+      final response = await ApiService().get('/store/').timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('Connection timed out'),
+      );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
           _products = data['products'] ?? [];
         });
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server error: ${response.statusCode}')));
       }
     } catch (e) {
-      print('Error fetching products: $e');
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not load store: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
