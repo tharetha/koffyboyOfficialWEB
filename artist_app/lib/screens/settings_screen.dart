@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart'; // To access themeNotifier
+import '../services/api_service.dart';
+import 'dart:convert';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -95,6 +97,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showManageFeesDialog(BuildContext context) async {
+    // Show loading initially
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator(color: Color(0xFFFF9900))),
+    );
+
+    try {
+      // Fetch current pricing
+      final response = await ApiService().get('/bookings/pricing');
+      Navigator.pop(context); // Close loading
+
+      if (response.statusCode == 200) {
+        final currentFees = jsonDecode(response.body) as Map<String, dynamic>;
+        final weddingCtrl = TextEditingController(text: currentFees['wedding']?.toString() ?? '1000');
+        final showCtrl = TextEditingController(text: currentFees['show']?.toString() ?? '1500');
+        final clubCtrl = TextEditingController(text: currentFees['club']?.toString() ?? '800');
+        final privateCtrl = TextEditingController(text: currentFees['private']?.toString() ?? '500');
+
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Manage Event Fees'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(controller: weddingCtrl, decoration: const InputDecoration(labelText: 'Wedding (ZMW)'), keyboardType: TextInputType.number),
+                    TextField(controller: showCtrl, decoration: const InputDecoration(labelText: 'Public Show (ZMW)'), keyboardType: TextInputType.number),
+                    TextField(controller: clubCtrl, decoration: const InputDecoration(labelText: 'Club Appearance (ZMW)'), keyboardType: TextInputType.number),
+                    TextField(controller: privateCtrl, decoration: const InputDecoration(labelText: 'Private Event (ZMW)'), keyboardType: TextInputType.number),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context); // Close dialog
+                    final updateResponse = await ApiService().post('/artist-mgmt/booking-pricing', {
+                      'wedding': double.tryParse(weddingCtrl.text) ?? 1000.0,
+                      'show': double.tryParse(showCtrl.text) ?? 1500.0,
+                      'club': double.tryParse(clubCtrl.text) ?? 800.0,
+                      'private': double.tryParse(privateCtrl.text) ?? 500.0,
+                    });
+                    if (updateResponse.statusCode == 200) {
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Event fees updated!')));
+                    } else {
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update fees.')));
+                    }
+                  },
+                  child: const Text('Save Fees'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to load current fees')));
+      }
+    } catch (e) {
+      Navigator.pop(context); // Close loading if error
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
   void _showTermsDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -165,6 +239,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Change Phone Number'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showChangeNumberDialog(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.monetization_on_outlined),
+            title: const Text('Manage Event Fees'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _showManageFeesDialog(context),
           ),
           const Divider(),
           const Padding(

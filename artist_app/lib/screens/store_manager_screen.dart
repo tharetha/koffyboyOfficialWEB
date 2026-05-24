@@ -193,6 +193,160 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
     });
   }
 
+  Future<void> _showEditProductDialog(Map<String, dynamic> product) async {
+    final nameCtrl = TextEditingController(text: product['name']);
+    final descCtrl = TextEditingController(text: product['description'] ?? '');
+    final priceCtrl = TextEditingController(text: product['price'].toString());
+    final stockCtrl = TextEditingController(text: product['stock'].toString());
+    final categoryCtrl = TextEditingController(text: product['category'] ?? 'Clothing');
+    File? selectedImage;
+    String? existingImageUrl = product['image_url'];
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF1E1E1E),
+              title: const Text('Edit Merch'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final picker = ImagePicker();
+                        final picked = await picker.pickImage(source: ImageSource.gallery);
+                        if (picked != null) {
+                          setStateDialog(() => selectedImage = File(picked.path));
+                        }
+                      },
+                      child: Container(
+                        height: 120,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: selectedImage != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(selectedImage!, fit: BoxFit.cover),
+                              )
+                            : existingImageUrl != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.network(existingImageUrl!, fit: BoxFit.cover),
+                                  )
+                                : const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add_a_photo, color: Colors.white54, size: 32),
+                                      SizedBox(height: 8),
+                                      Text('Tap to select image', style: TextStyle(color: Colors.white54)),
+                                    ],
+                                  ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: const InputDecoration(labelText: 'Product Name'),
+                    ),
+                    TextField(
+                      controller: descCtrl,
+                      decoration: const InputDecoration(labelText: 'Description'),
+                      maxLines: 2,
+                    ),
+                    TextField(
+                      controller: categoryCtrl,
+                      decoration: const InputDecoration(labelText: 'Category'),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: priceCtrl,
+                            decoration: const InputDecoration(labelText: 'Price (ZMW)'),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextField(
+                            controller: stockCtrl,
+                            decoration: const InputDecoration(labelText: 'Stock'),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (nameCtrl.text.isEmpty || priceCtrl.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please provide at least a name and price.')));
+                      return;
+                    }
+                    Navigator.pop(context, {
+                      'name': nameCtrl.text,
+                      'desc': descCtrl.text,
+                      'price': priceCtrl.text,
+                      'stock': stockCtrl.text,
+                      'category': categoryCtrl.text,
+                      'image': selectedImage,
+                    });
+                  },
+                  child: const Text('Update & Save', style: TextStyle(color: Color(0xFF00E676))),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    ).then((result) async {
+      if (result != null) {
+        setState(() => _isLoading = true);
+        try {
+          String? url = existingImageUrl;
+          if (result['image'] != null) {
+            final file = result['image'] as File;
+            url = await FirebaseStorageService().uploadFile(file, 'store_products');
+          }
+          
+          final response = await ApiService().patch('/artist-mgmt/products/${product['id']}', {
+            'name': result['name'],
+            'description': result['desc'],
+            'price': double.tryParse(result['price']) ?? 0.0,
+            'stock': int.tryParse(result['stock']) ?? 0,
+            'category': result['category'],
+            'image_url': url,
+          });
+
+          if (response.statusCode == 200) {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product updated successfully!')));
+            _fetchProducts();
+          } else {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update product.')));
+          }
+        } catch (e) {
+           if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Update failed: $e')));
+        } finally {
+          if (mounted) setState(() => _isLoading = false);
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -235,9 +389,7 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                         subtitle: Text('ZMW ${product['price']} • Stock: ${product['stock']}'),
                         trailing: IconButton(
                           icon: const Icon(Icons.edit, color: Colors.white54),
-                          onPressed: () {
-                            // TODO: Edit product
-                          },
+                          onPressed: () => _showEditProductDialog(product),
                         ),
                       ),
                     );

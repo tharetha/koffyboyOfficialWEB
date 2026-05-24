@@ -3,10 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  // 🔴 EMULATOR:     http://10.0.2.2:5000/api
-  // 🍎 iOS SIM:      http://127.0.0.1:5000/api
-  // 📱 REAL DEVICE:  http://98.91.230.252:5000/api  ← currently active
-  static const String baseUrl = 'http://98.91.230.252:5000/api'; // Live server address
+  // 🔴 EMULATOR:     http://10.0.2.2/api
+  // 🍎 iOS SIM:      http://127.0.0.1/api
+  // 📱 REAL DEVICE:  http://98.91.230.252/api  ← currently active
+  static const String baseUrl = 'http://98.91.230.252/api'; // Live server address
 
   static final ApiService _instance = ApiService._internal();
 
