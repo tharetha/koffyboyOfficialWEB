@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/api_service.dart';
-import '../services/firebase_storage_service.dart';
 import 'dart:convert';
 import 'settings_screen.dart';
 
@@ -71,9 +70,8 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
     setState(() => _isLoading = true);
     try {
       String? imageUrl = _existingProfileImageUrl;
-      
       if (_newProfileImage != null) {
-        imageUrl = await FirebaseStorageService().uploadFile(_newProfileImage!, 'artist_profile');
+        imageUrl = await ApiService().uploadFile('/upload/', _newProfileImage!.path);
       }
 
       final socialLinks = {
@@ -139,7 +137,7 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
     setState(() => _isLoading = true);
     try {
       final file = File(image.path);
-      final url = await FirebaseStorageService().uploadFile(file, 'highlights');
+      final url = await ApiService().uploadFile('/upload/', file.path);
       
       if (url != null) {
         final response = await ApiService().post('/artist-mgmt/highlights', {

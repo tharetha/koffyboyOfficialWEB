@@ -56,6 +56,26 @@
             font-weight: bold;
             z-index: 100;
         }
+
+        .empty-store-container {
+            text-align: center;
+            grid-column: 1/-1;
+            padding: 5rem 2rem;
+        }
+
+        .empty-cart-icon {
+            font-size: 6rem;
+            color: rgba(255, 51, 102, 0.5);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
     </style>
 </head>
 
@@ -79,8 +99,26 @@
     </div>
 
     <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    <footer style="margin-top: auto; padding: 3rem 1.5rem 2rem; background-color: var(--surface-color); border-top: 1px solid var(--border-color);">
+        <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+            <div class="social-links" style="display: flex; gap: 1.5rem;">
+                <a href="https://www.tiktok.com/@koffyboy65?_r=1&_t=ZS-96eb60rEt9h" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">🎵 TikTok</a>
+                <a href="https://www.instagram.com/koffyboy_zed_n3t?igsh=a3llbjJncnNmcWl3" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">📸 Instagram</a>
+                <a href="https://youtube.com/@koffyboy55?si=c1MqSDuZpRpck0vG" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">▶️ YouTube</a>
+                <a href="https://www.facebook.com/share/17VvEvFMCe/" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">📘 Facebook</a>
+            </div>
+            
+            <div style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                <p style="margin-bottom: 0.5rem; color: var(--primary-color);">Developed by KTS Technologies Ltd.</p>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
+                    <a href="mailto:KTStechnologiesLtd@gmail.com" style="color: var(--text-secondary); text-decoration: underline;">KTStechnologiesLtd@gmail.com</a>
+                    <a href="mailto:simuvwenzethabo@gmail.com" style="color: var(--text-secondary); text-decoration: underline;">simuvwenzethabo@gmail.com</a>
+                    <a href="mailto:khulelak@gmail.com" style="color: var(--text-secondary); text-decoration: underline;">khulelak@gmail.com</a>
+                </div>
+            </div>
+
+            <p style="margin-top: 1rem; color: #555;">&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+        </div>
     </footer>
 
     <script src="js/main.js?v=13"></script>
@@ -98,7 +136,13 @@
                 grid.innerHTML = '';
 
                 if (!data.products || data.products.length === 0) {
-                    grid.innerHTML = '<div style="text-align:center;grid-column:1/-1;padding:4rem;color:var(--text-secondary);">Merch dropping soon. Check back later!</div>';
+                    grid.innerHTML = `
+                        <div class="empty-store-container">
+                            <div class="empty-cart-icon">🛒</div>
+                            <h3 style="margin-bottom: 0.5rem;">Store is Empty</h3>
+                            <p style="color:var(--text-secondary);">Merch dropping soon. Check back later!</p>
+                        </div>
+                    `;
                     return;
                 }
                 

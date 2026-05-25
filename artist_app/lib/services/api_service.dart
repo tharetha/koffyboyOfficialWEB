@@ -54,4 +54,22 @@ class ApiService {
     final headers = await _getHeaders();
     return await http.delete(Uri.parse('$baseUrl$endpoint'), headers: headers);
   }
+
+  Future<String?> uploadFile(String endpoint, String filePath) async {
+    final token = await _getToken();
+    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.files.add(await http.MultipartFile.fromPath('file', filePath));
+    
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+    
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return data['url'];
+    }
+    return null;
+  }
 }

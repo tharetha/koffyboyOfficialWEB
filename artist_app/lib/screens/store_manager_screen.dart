@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/api_service.dart';
-import '../services/firebase_storage_service.dart';
-import 'dart:convert';
+import '../services/api_service.dart';
 
 class StoreManagerScreen extends StatefulWidget {
   const StoreManagerScreen({super.key});
@@ -52,7 +51,7 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
     final priceCtrl = TextEditingController();
     final stockCtrl = TextEditingController();
     final categoryCtrl = TextEditingController(text: 'Clothing');
-    File? selectedImage;
+    List<File> selectedImages = [];
 
     await showDialog(
       context: context,
@@ -69,9 +68,12 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                     GestureDetector(
                       onTap: () async {
                         final picker = ImagePicker();
-                        final picked = await picker.pickImage(source: ImageSource.gallery);
-                        if (picked != null) {
-                          setStateDialog(() => selectedImage = File(picked.path));
+                        final picked = await picker.pickMultiImage();
+                        if (picked.isNotEmpty) {
+                          setStateDialog(() {
+                            // Max 3 images
+                            selectedImages = picked.take(3).map((x) => File(x.path)).toList();
+                          });
                         }
                       },
                       child: Container(
@@ -82,17 +84,24 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.white24),
                         ),
-                        child: selectedImage != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(selectedImage!, fit: BoxFit.cover),
+                        child: selectedImages.isNotEmpty
+                            ? ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: selectedImages.length,
+                                itemBuilder: (ctx, i) => Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(selectedImages[i], width: 110, fit: BoxFit.cover),
+                                  ),
+                                ),
                               )
                             : const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.add_a_photo, color: Colors.white54, size: 32),
                                   SizedBox(height: 8),
-                                  Text('Tap to select image', style: TextStyle(color: Colors.white54)),
+                                  Text('Select up to 3 images', style: TextStyle(color: Colors.white54)),
                                 ],
                               ),
                       ),
@@ -140,8 +149,8 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    if (nameCtrl.text.isEmpty || priceCtrl.text.isEmpty || selectedImage == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please provide all details and an image.')));
+                    if (nameCtrl.text.isEmpty || priceCtrl.text.isEmpty || selectedImages.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please provide all details and at least one image.')));
                       return;
                     }
                     Navigator.pop(context, {
@@ -150,7 +159,7 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                       'price': priceCtrl.text,
                       'stock': stockCtrl.text,
                       'category': categoryCtrl.text,
-                      'image': selectedImage,
+                      'images': selectedImages,
                     });
                   },
                   child: const Text('Upload & Save', style: TextStyle(color: Color(0xFF00E676))),
@@ -164,17 +173,23 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
       if (result != null) {
         setState(() => _isLoading = true);
         try {
-          final file = result['image'] as File;
-          final url = await FirebaseStorageService().uploadFile(file, 'store_products');
+          final files = result['images'] as List<File>;
+          List<String> uploadedUrls = [];
           
-          if (url != null) {
+          for (var file in files) {
+             final url = await ApiService().uploadFile('/upload/', file.path);
+             if (url != null) uploadedUrls.add(url);
+          }
+          
+          if (uploadedUrls.isNotEmpty) {
             final response = await ApiService().post('/artist-mgmt/products', {
               'name': result['name'],
               'description': result['desc'],
               'price': double.tryParse(result['price']) ?? 0.0,
               'stock': int.tryParse(result['stock']) ?? 0,
               'category': result['category'],
-              'image_url': url,
+              'image_url': uploadedUrls[0], // First image as main
+              'images_json': jsonEncode(uploadedUrls), // All images
             });
 
             if (response.statusCode == 201) {
@@ -245,7 +260,7 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                                     children: [
                                       Icon(Icons.add_a_photo, color: Colors.white54, size: 32),
                                       SizedBox(height: 8),
-                                      Text('Tap to select image', style: TextStyle(color: Colors.white54)),
+                                      Text('Tap to select main image', style: TextStyle(color: Colors.white54)),
                                     ],
                                   ),
                       ),
@@ -320,7 +335,7 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
           String? url = existingImageUrl;
           if (result['image'] != null) {
             final file = result['image'] as File;
-            url = await FirebaseStorageService().uploadFile(file, 'store_products');
+            url = await ApiService().uploadFile('/upload/', file.path);
           }
           
           final response = await ApiService().patch('/artist-mgmt/products/${product['id']}', {

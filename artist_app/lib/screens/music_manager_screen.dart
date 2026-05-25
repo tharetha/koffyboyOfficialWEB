@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import '../services/api_service.dart';
-import '../services/firebase_storage_service.dart';
 import 'dart:convert';
 
 class MusicManagerScreen extends StatefulWidget {
@@ -176,9 +175,9 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
         try {
           String? url;
           if (result['image'] != null) {
-            url = await FirebaseStorageService().uploadFile(
-              result['image'] as File,
-              'album_covers',
+            url = await ApiService().uploadFile(
+              '/upload/',
+              (result['image'] as File).path,
             );
           }
 
@@ -305,9 +304,9 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
 
         setState(() => _isLoading = true);
         try {
-          final url = await FirebaseStorageService().uploadFile(
-            result['audio'] as File,
-            'tracks',
+          final url = await ApiService().uploadFile(
+            '/upload/',
+            (result['audio'] as File).path,
           );
 
           if (url != null) {
@@ -445,10 +444,10 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
 
         setState(() => _isLoading = true);
         try {
-          final audioUrl = await FirebaseStorageService().uploadFile(result['audio'] as File, 'tracks');
+          final audioUrl = await ApiService().uploadFile('/upload/', (result['audio'] as File).path);
           String? coverUrl;
           if (result['cover'] != null) {
-             coverUrl = await FirebaseStorageService().uploadFile(result['cover'] as File, 'album_covers');
+             coverUrl = await ApiService().uploadFile('/upload/', (result['cover'] as File).path);
           }
 
           if (audioUrl != null) {

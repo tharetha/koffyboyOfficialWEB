@@ -33,35 +33,78 @@
             like to book Koffyboy for.</p>
 
         <div class="events-container" id="events-container">
-            <a class="event-card" href="book-event.html?type=show">
-                <img class="event-card-img" src="img/event_show.png" alt="Show">
+            <div class="event-card" data-type="show" data-price="1500">
+                <img class="event-card-img" src="img/event_show.png" alt="Show" onerror="this.src=''; this.style.background='#333'">
                 <div class="event-card-label">Show</div>
-            </a>
-            <a class="event-card" href="book-event.html?type=wedding">
-                <img class="event-card-img" src="img/event_wedding.png" alt="Wedding">
+            </div>
+            <div class="event-card" data-type="wedding" data-price="1000">
+                <img class="event-card-img" src="img/event_wedding.png" alt="Wedding" onerror="this.src=''; this.style.background='#333'">
                 <div class="event-card-label">Wedding</div>
-            </a>
-            <a class="event-card" href="book-event.html?type=club">
-                <img class="event-card-img" src="img/event_club.png" alt="Club Appearance">
+            </div>
+            <div class="event-card" data-type="club" data-price="800">
+                <img class="event-card-img" src="img/event_club.png" alt="Club Appearance" onerror="this.src=''; this.style.background='#333'">
                 <div class="event-card-label">Club Appearance</div>
-            </a>
-            <a class="event-card" href="book-event.html?type=private">
+            </div>
+            <div class="event-card" data-type="private" data-price="500">
                 <div class="event-card-img"
                     style="background: linear-gradient(135deg, #1a0a0f 0%, #2d1b24 50%, #1a0a0f 100%);"></div>
                 <div class="event-card-label">Private Event</div>
-            </a>
-            <a class="event-card" href="book-event.html?type=custom">
-                <div class="event-card-img"
-                    style="background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 50%, #0d0d1a 100%);"></div>
-                <span class="event-card-custom-icon">+</span>
-                <div class="event-card-label">Custom Event</div>
-            </a>
+            </div>
+        </div>
+
+        <!-- Missing Calendar Section -->
+        <div id="calendar-section" class="hidden" style="margin-top: 3rem;">
+            <h3 style="text-align:center; margin-bottom: 1.5rem;">Select Date for <span id="display-event" style="color:var(--primary-color);"></span></h3>
+            <div style="display:flex; justify-content:center; align-items:center; gap: 1rem; margin-bottom: 1rem;">
+                <button id="prev-month" style="background:var(--surface-color); color:white; border:none; padding:0.5rem 1rem; border-radius:8px; cursor:pointer;">&lt;</button>
+                <h4 id="current-month" style="margin:0; width: 150px; text-align:center;">Month Year</h4>
+                <button id="next-month" style="background:var(--surface-color); color:white; border:none; padding:0.5rem 1rem; border-radius:8px; cursor:pointer;">&gt;</button>
+            </div>
+            <div id="calendar-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align:center;"></div>
+        </div>
+
+        <!-- Missing Details Section -->
+        <div id="booking-details-section" class="hidden" style="margin-top: 3rem; background:var(--surface-color); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-color);">
+            <h3 style="margin-bottom: 1rem;">Booking Details</h3>
+            <p>Selected Date: <span id="display-date" style="color:var(--primary-color); font-weight:bold;"></span></p>
+            <p>Estimated Price: <span id="estimated-price" style="color:var(--success-color); font-weight:bold;"></span></p>
+            
+            <form id="booking-form" style="margin-top: 1.5rem; display:flex; flex-direction:column; gap: 1rem;">
+                <div>
+                    <label style="display:block; margin-bottom:0.5rem;">Location/Venue</label>
+                    <input type="text" id="location" required style="width:100%; padding:0.8rem; border-radius:8px; background:#111; border:1px solid #333; color:white;">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom:0.5rem;">Upload NRC/ID Photo (KYC Required)</label>
+                    <input type="file" id="nrc-file" accept="image/*" required style="width:100%; padding:0.8rem; border-radius:8px; background:#111; border:1px solid #333; color:white;">
+                </div>
+                <button type="submit" style="background:var(--primary-color); color:white; border:none; padding:1rem; border-radius:8px; font-weight:bold; cursor:pointer; margin-top: 1rem;">Submit Booking Request</button>
+            </form>
+            <div id="booking-alert" class="hidden" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; text-align:center;"></div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+    <footer style="margin-top: auto; padding: 3rem 1.5rem 2rem; background-color: var(--surface-color); border-top: 1px solid var(--border-color);">
+        <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+            <div class="social-links" style="display: flex; gap: 1.5rem;">
+                <a href="https://www.tiktok.com/@koffyboy65?_r=1&_t=ZS-96eb60rEt9h" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">🎵 TikTok</a>
+                <a href="https://www.instagram.com/koffyboy_zed_n3t?igsh=a3llbjJncnNmcWl3" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">📸 Instagram</a>
+                <a href="https://youtube.com/@koffyboy55?si=c1MqSDuZpRpck0vG" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">▶️ YouTube</a>
+                <a href="https://www.facebook.com/share/17VvEvFMCe/" target="_blank" style="color: var(--text-secondary); text-decoration: none; font-size: 1.5rem;">📘 Facebook</a>
+            </div>
+            
+            <div style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                <p style="margin-bottom: 0.5rem; color: var(--primary-color);">Developed by KTS Technologies Ltd.</p>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
+                    <a href="mailto:KTStechnologiesLtd@gmail.com" style="color: var(--text-secondary); text-decoration: underline;">KTStechnologiesLtd@gmail.com</a>
+                    <a href="mailto:simuvwenzethabo@gmail.com" style="color: var(--text-secondary); text-decoration: underline;">simuvwenzethabo@gmail.com</a>
+                    <a href="mailto:khulelak@gmail.com" style="color: var(--text-secondary); text-decoration: underline;">khulelak@gmail.com</a>
+                </div>
+            </div>
+
+            <p style="margin-top: 1rem; color: #555;">&copy; 2026 KTS Technologies Ltd. All Rights Reserved.</p>
+        </div>
     </footer>
 
     <script src="js/main.js"></script>
@@ -79,13 +122,22 @@
 
         // Card Selection
         cards.forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default link behavior if any
+
+                const user = JSON.parse(localStorage.getItem('koffy_user'));
+                if (!user) {
+                    alert('You must be logged in to book Koffyboy. Please login or sign up first.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
                 cards.forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
                 selectedType = card.dataset.type;
                 currentPrice = card.dataset.price;
 
-                document.getElementById('display-event').textContent = card.querySelector('h3').textContent;
+                document.getElementById('display-event').textContent = card.querySelector('.event-card-label').textContent;
                 document.getElementById('estimated-price').textContent = currentPrice == 0 ? "TBD" : `$${currentPrice}`;
 
                 calendarSection.classList.remove('hidden');
@@ -173,17 +225,42 @@
                 return;
             }
 
+            let nrcUrl = null;
+            const nrcFile = document.getElementById('nrc-file').files[0];
+            
+            if (nrcFile) {
+                const formData = new FormData();
+                formData.append('file', nrcFile);
+                try {
+                    const uploadRes = await fetch('/api/upload/', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.url) {
+                        nrcUrl = uploadData.url;
+                    }
+                } catch (e) {
+                    console.error("NRC Upload failed", e);
+                }
+            }
+
             const payload = {
                 user_id: user.id,
                 event_type: selectedType,
                 event_date: selectedDate,
-                location: document.getElementById('location').value
+                location: document.getElementById('location').value,
+                nrc_image_url: nrcUrl
             };
 
             try {
-                const res = await fetch('http://localhost:5000/api/bookings/', {
+                const token = localStorage.getItem('koffy_token');
+                const res = await fetch('/api/bookings/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(payload)
                 });
 
