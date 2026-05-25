@@ -196,8 +196,10 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
               if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product added successfully!')));
               _fetchProducts();
             } else {
-              if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to add product to backend.')));
+              if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add product: ${response.statusCode}')));
             }
+          } else {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to upload image. Please check your connection or file size.')));
           }
         } catch (e) {
            if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
@@ -206,6 +208,44 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
         }
       }
     });
+  }
+
+  Future<void> _deleteProduct(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('Delete Product'),
+        content: const Text('Are you sure you want to delete this product?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      try {
+        final response = await ApiService().delete('/artist-mgmt/products/$id');
+        if (response.statusCode == 200) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product deleted')));
+          _fetchProducts();
+        } else {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to delete: ${response.statusCode}')));
+        }
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _showEditProductDialog(Map<String, dynamic> product) async {
@@ -402,9 +442,18 @@ class _StoreManagerScreenState extends State<StoreManagerScreen> {
                         ),
                         title: Text(product['name'] ?? 'Unnamed', style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text('ZMW ${product['price']} • Stock: ${product['stock']}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.white54),
-                          onPressed: () => _showEditProductDialog(product),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.white54),
+                              onPressed: () => _showEditProductDialog(product),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteProduct(product['id']),
+                            ),
+                          ],
                         ),
                       ),
                     );

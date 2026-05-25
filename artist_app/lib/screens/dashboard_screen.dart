@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'bookings_manager_screen.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../services/api_service.dart';
+import 'dart:convert';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -25,6 +26,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _initSocket();
+    _fetchMetrics();
+  }
+
+  Future<void> _fetchMetrics() async {
+    try {
+      final response = await ApiService().get('/artist-mgmt/dashboard-stats');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            metrics['totalRevenue'] = data['revenue'] ?? 0.0;
+            metrics['ticketSales'] = data['tickets_sold'] ?? 0;
+            metrics['upcomingBookings'] = data['upcoming_events'] ?? 0;
+          });
+        }
+      }
+    } catch (e) {
+      print('Failed to fetch dashboard stats: $e');
+    }
   }
 
   void _initSocket() {

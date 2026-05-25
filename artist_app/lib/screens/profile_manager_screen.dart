@@ -21,10 +21,28 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
+  List<dynamic> _highlights = [];
+
   @override
   void initState() {
     super.initState();
     _fetchProfile();
+    _fetchHighlights();
+  }
+
+  Future<void> _fetchHighlights() async {
+    try {
+      final response = await ApiService().get('/artist-mgmt/highlights');
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            _highlights = jsonDecode(response.body);
+          });
+        }
+      }
+    } catch (e) {
+      print('Failed to fetch highlights: $e');
+    }
   }
 
   Future<void> _fetchProfile() async {
@@ -148,6 +166,7 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
         if (response.statusCode == 201) {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Highlight added to website!')));
+          _fetchHighlights();
         }
       }
     } catch (e) {
@@ -155,6 +174,38 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteHighlight(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('Delete Highlight'),
+        content: const Text('Remove this highlight?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      try {
+        final response = await ApiService().delete('/artist-mgmt/highlights/$id');
+        if (response.statusCode == 200) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Highlight deleted')));
+          _fetchHighlights();
+        } else {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${response.statusCode}')));
+        }
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -281,6 +332,45 @@ class _ProfileManagerScreenState extends State<ProfileManagerScreen> {
               onPressed: _addHighlight,
             ),
           ),
+          if (_highlights.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _highlights.length,
+                itemBuilder: (context, index) {
+                  final h = _highlights[index];
+                  // If highlight ID is missing in public endpoint, we may need to fetch it differently,
+                  // wait, GET /highlights currently returns only image_url and caption.
+                  // We need the ID to delete!
+                  return Stack(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        width: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(image: NetworkImage(h['image_url']), fit: BoxFit.cover),
+                        ),
+                      ),
+                      if (h['id'] != null) Positioned(
+                        top: 4,
+                        right: 16,
+                        child: GestureDetector(
+                          onTap: () => _deleteHighlight(h['id']),
+                          child: Container(
+                            decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                            child: const Icon(Icons.close, color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           const Divider(color: Colors.white24),
           ListTile(

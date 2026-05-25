@@ -192,6 +192,8 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
                 context,
               ).showSnackBar(const SnackBar(content: Text('Album created!')));
             _fetchMusic();
+          } else {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${response.statusCode}')));
           }
         } catch (e) {
           if (mounted)
@@ -203,6 +205,68 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
         }
       }
     });
+  }
+
+  Future<void> _deleteAlbum(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('Delete Album'),
+        content: const Text('Are you sure you want to delete this album and all its tracks?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      try {
+        final response = await ApiService().delete('/artist-mgmt/albums/$id');
+        if (response.statusCode == 200) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Album deleted')));
+          _fetchMusic();
+        } else {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${response.statusCode}')));
+        }
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _deleteTrack(int id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('Delete Track'),
+        content: const Text('Are you sure you want to delete this track?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      setState(() => _isLoading = true);
+      try {
+        final response = await ApiService().delete('/artist-mgmt/tracks/$id');
+        if (response.statusCode == 200) {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Track deleted')));
+          _fetchMusic();
+        } else {
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${response.statusCode}')));
+        }
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
   }
 
   Future<void> _showAddTrackDialog(int albumId) async {
@@ -326,7 +390,11 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
                   context,
                 ).showSnackBar(const SnackBar(content: Text('Track added!')));
               _fetchMusic();
+            } else {
+              if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${response.statusCode}')));
             }
+          } else {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to upload audio file. Check file size.')));
           }
         } catch (e) {
           if (mounted)
@@ -462,7 +530,11 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
             if (response.statusCode == 201) {
               if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Single added!')));
               _fetchMusic();
+            } else {
+              if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${response.statusCode}')));
             }
+          } else {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to upload audio file. Check file size.')));
           }
         } catch (e) {
           if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
@@ -534,9 +606,17 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
                               ? const Icon(Icons.album, color: Colors.white24)
                               : null,
                         ),
-                        title: Text(
-                          album['title'] ?? 'Unknown Album',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        title: Row(
+                          children: [
+                            Expanded(child: Text(
+                              album['title'] ?? 'Unknown Album',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            )),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                              onPressed: () => _deleteAlbum(album['id']),
+                            ),
+                          ],
                         ),
                         subtitle: Text('${tracks.length} Tracks'),
                         children: [
@@ -553,24 +633,33 @@ class _MusicManagerScreenState extends State<MusicManagerScreen> {
                                     ),
                                     title: Text(track['title']),
                                     subtitle: track['is_sample'] == true ? const Text('Sample / Free', style: TextStyle(color: Colors.amber, fontSize: 12)) : null,
-                                    trailing: IconButton(
-                                      icon: Icon(
-                                        isCurrentTrack && _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                                        color: const Color(0xFFFF9900),
-                                        size: 32,
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              isCurrentTrack && _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                                              color: const Color(0xFFFF9900),
+                                              size: 32,
+                                            ),
+                                            onPressed: () async {
+                                              if (isCurrentTrack && _isPlaying) {
+                                                await _audioPlayer.pause();
+                                              } else {
+                                                await _audioPlayer.play(UrlSource(track['audio_url']));
+                                                setState(() => _currentlyPlayingUrl = track['audio_url']);
+                                              }
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                                            onPressed: () => _deleteTrack(track['id']),
+                                          ),
+                                        ],
                                       ),
-                                      onPressed: () async {
-                                        if (isCurrentTrack && _isPlaying) {
-                                          await _audioPlayer.pause();
-                                        } else {
-                                          await _audioPlayer.play(UrlSource(track['audio_url']));
-                                          setState(() => _currentlyPlayingUrl = track['audio_url']);
-                                        }
-                                      },
-                                    ),
-                                  );
-                                }
-                              )
+                                    );
+                                  }
+                                )
                               .toList(),
                           ListTile(
                             leading: const Icon(
