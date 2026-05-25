@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
 import '../services/api_service.dart';
-import '../services/api_service.dart';
-
 class StoreManagerScreen extends StatefulWidget {
   const StoreManagerScreen({super.key});
 
